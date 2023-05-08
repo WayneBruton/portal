@@ -141,16 +141,15 @@
                       @click="exitInvestment(props.row)"
                       >Exit / Rollover</q-btn
                     >
-                    <!-- color:  #ba852a; -->
-                    <!-- #dec57c -->
                     <q-btn
                       flat
                       v-if="props.row.amount_invested === 'CLOSED'"
-                      style="margin-left: 5px; background: transparant; color: #ba852a"
+                      style="margin-left: 5px; background: transparant; color: green"
                       icon="insert_chart_outlined"
                       no-caps
                       :id="props.row._id"
                       size="s"
+                      @click="getGraph(props.row)"
                     >
                       <q-tooltip anchor="center right" self="center left"
                         >Show Chart</q-tooltip
@@ -259,6 +258,20 @@
             </div>
             <div>
               <q-btn
+                flat
+                v-if="item.amount_invested === 'CLOSED'"
+                style="margin-left: 5px; background: transparant; color: green"
+                icon="insert_chart_outlined"
+                no-caps
+                :id="item._id"
+                size="s"
+                @click="getGraph(item)"
+              >
+                <q-tooltip anchor="center right" self="center left">Show Chart</q-tooltip>
+              </q-btn>
+            </div>
+            <div>
+              <q-btn
                 v-if="
                   item.amount_invested !== 'CLOSED' &&
                   item.investor_acc_number === 'ZALM01' &&
@@ -286,6 +299,20 @@
       </q-card>
       <br />
     </div>
+
+    <q-dialog v-model="showgraph" full-width>
+      <q-card>
+        <q-card-section>
+          <div>
+            <BarChart :chartData="display_data" :options="options" style="height: 75vh" />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="bg-white text-black">
+          <q-btn flat label="close" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <q-dialog v-model="fullWidth" full-width>
       <q-card class="">
@@ -514,11 +541,127 @@ import stdHeader from "../components/StdHeader.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import dayjs from "dayjs";
 import QCurrencyInput from "../components/QCurrencyInput.vue";
+import axios from "axios";
+import { BarChart } from "vue-chart-3";
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
+
+let pythonUrl = ref("");
+
+if (process.env.DEV) {
+  pythonUrl.value = "http://localhost:8000";
+} else {
+  pythonUrl.value = "https://omh-python.herokuapp.com";
+}
 
 const $q = useQuasar();
 const store = useUserStore();
 const router = useRouter();
 const route = useRoute();
+
+const showgraph = ref(false);
+
+const getGraph = async (event) => {
+  closed_investments.value = [];
+  closed_investments.value.push(event);
+  get_chart_info();
+  showgraph.value = true;
+};
+
+const summary_data = ref([]);
+
+const closed_investments = ref([]);
+const chart_data = ref([]);
+
+const display_data = ref({
+  labels: [],
+  datasets: [
+    {
+      label: "Annualised Interest Earned",
+      data: [],
+      backgroundColor: ["rgba(255, 26, 104, 0.4)"],
+      borderColor: ["rgba(255, 26, 104, 1)"],
+      borderWidth: 1,
+    },
+    {
+      label: "Return on Investment",
+      data: [],
+      backgroundColor: ["rgba(54, 162, 235, 0.4)"],
+      borderColor: ["rgba(54, 162, 235, 1)"],
+      borderWidth: 1,
+    },
+  ],
+});
+
+const options = ref({
+  scales: {},
+  plugins: {
+    title: {
+      display: true,
+      text: "Investment Summary",
+      color: "white",
+      font: {
+        size: 16,
+        bold: true,
+      },
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Investment Details",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+    },
+    y: {
+      title: {
+        display: true,
+        text: "Interest Rate (%)",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+    },
+  },
+});
+
+const get_chart_info = async () => {
+  let data = {
+    chartData: closed_investments.value,
+  };
+
+  await axios
+    .post(`${pythonUrl.value}/getChartData`, data)
+    .then((response) => {
+      chart_data.value = [];
+      chart_data.value = response.data.final_chart_data;
+
+      options.value.plugins.title.text = `Investment Summary`;
+      display_data.value.labels = [];
+      display_data.value.datasets.forEach((el) => {
+        el.data = [];
+      });
+
+      chart_data.value.forEach((el) => {
+        display_data.value.labels.push(
+          `${el.opportunity_code} - Inv No: ${el.investment_number}`
+        );
+        display_data.value.datasets[0].data.push(el.annualised_interest_rate);
+
+        display_data.value.datasets[1].data.push(el.return_on_investment);
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
 const filter = ref("");
 

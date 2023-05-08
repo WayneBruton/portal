@@ -11,7 +11,7 @@
         :style="getItemStyle(item.color)"
       >
         {{ item.Description }}: {{ item.price }}
-        <q-icon size="md" :name="item.icon" :color="item.icon_color" />
+        <q-icon size="md" :name="item.icon" :color="item.icon_color" v-if="item.icon" />
       </q-chip>
     </MarqueeText>
     <MarqueeText duration="10" style="margin-bottom: 15px; width: 100vw" v-else>
@@ -19,42 +19,25 @@
         Market info coming!
       </q-chip>
       <q-chip :square="square" :dense="dense" style="background: #b47b1d; color: white">
-        Market info coming!
+        Approx 10 Seconds!
       </q-chip>
       <q-chip :square="square" :dense="dense" style="background: #e7d4a0; color: black">
         Market info coming!
       </q-chip>
       <q-chip :square="square" :dense="dense" style="background: #b47b1d; color: white">
-        Market info coming!
+        Approx 10 Seconds!
       </q-chip>
       <q-chip :square="square" :dense="dense" style="background: #e7d4a0; color: black">
         Market info coming!
       </q-chip>
       <q-chip :square="square" :dense="dense" style="background: #b47b1d; color: white">
-        Market info coming!
+        Approx 10 Seconds!
       </q-chip>
     </MarqueeText>
 
     <div class="row">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
-        <!-- <MarqueeText
-          duration="35"
-          style="margin-bottom: 5px"
-          v-show="stock_market.length > 0"
-        >
-          <q-chip
-            :square="square"
-            :dense="dense"
-            v-for="(item, index) in store.stock_market"
-            :key="index"
-            :style="getItemStyle(item.color)"
-          >
-            {{ item.Description }}: {{ item.price }}
-            <q-icon size="md" :name="item.icon" :color="item.icon_color" />
-          </q-chip>
-        </MarqueeText> -->
-        <!-- background: radial-gradient(circle, #e7d4a0 0%, #b47b1d 100%); -->
         <q-card
           class="my-card text-white"
           style="height: 100%; border: 1px solid #e7d4a0"
@@ -160,20 +143,20 @@ const urlPython = ref(
 
 const get_stock_data = async () => {
   try {
+    // stock_market.value = [];
     stock_market.value = store.stock_market;
 
-    const response = await axios.get(`${urlPython.value}/stock_market`);
-    // console.log("XXXX", response.data);
-    stock_market.value = [];
-    stock_market.value = response.data.stock_market;
-    store.stock_market = response.data.stock_market;
+    const response = await axios
+      .get(`${urlPython.value}/stock_market`)
+      .then((response) => {
+        stock_market.value = [];
+        stock_market.value = response.data.stock_market;
+        store.stock_market = response.data.stock_market;
+      });
   } catch (error) {
     console.log(error);
   }
 };
-
-// console.log(store.stock_market);
-// console.log(store.stock_market.length);
 
 onBeforeMount(() => {
   store.current_investment_viewed = "";
@@ -196,10 +179,10 @@ const getItemStyle = (color) => {
 
 // watchEfect stock_market.value and update styles accordingly
 
-// get_stock_data every 15 seconds
-setInterval(() => {
-  get_stock_data();
-}, 1000 * 60 * 15);
+// get_stock_data every 15 minutes - TURN ON AFTER UPGRADE
+// setInterval(() => {
+//   get_stock_data();
+// }, 1000 * 60 * 15);
 
 const square = ref(true);
 const dense = ref(false);
@@ -237,6 +220,7 @@ const interest = ref(0);
 const getInvestorDocs = async () => {
   try {
     const response = await nodeService.getInvestorDocs(route.params);
+    // console.log(response.data);
 
     store.files = [];
     store.loanAgreements = [];
@@ -257,7 +241,6 @@ const getInvestorDocs = async () => {
       } else {
         files.push(el);
       }
-      // insert[el.key] = el.value;
     });
 
     store.files = files;
@@ -270,11 +253,11 @@ const getInvestorDocs = async () => {
 onBeforeMount(() => {
   getInvestorDocs();
 });
-// getInvestorDocs();
 
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
+    // console.log(response.data);
 
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {

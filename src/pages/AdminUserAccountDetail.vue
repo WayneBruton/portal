@@ -46,6 +46,17 @@
           @click="viewInvestmentsList"
           >View Full Investment List</q-btn
         >
+
+        <q-btn
+          flat
+          style="margin-left: 5px; background: transparant; color: green"
+          icon="insert_chart_outlined"
+          no-caps
+          size="s"
+          @click="scrollToSection('section1')"
+        >
+          <q-tooltip anchor="center right" self="center left">Show Chart</q-tooltip>
+        </q-btn>
       </div>
       <div class="col-0 col-sm-4 col-md-4 col-lg-4 col-xl-4"></div>
     </div>
@@ -113,7 +124,11 @@
     <div class="row" v-if="development_data.length > 0">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
-        <div
+        <div>
+          <BarChart id="section1" :chartData="display_data" :options="options" />
+          <!-- <bar-chart :data="chartData" :options="chartOptions"></bar-chart> -->
+        </div>
+        <!-- <div
           style="
             width: 100%;
             height: 200px;
@@ -125,7 +140,7 @@
           <span style="color: white"
             >GRAPH GOES HERE - DEFAULT LAST CLOSED INVESTMENT</span
           >
-        </div>
+        </div> -->
       </div>
 
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
@@ -142,8 +157,20 @@ import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import dayjs from "dayjs";
+import axios from "axios";
+import { BarChart } from "vue-chart-3";
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
 
 verifyUser();
+
+let pythonUrl = ref("");
+
+if (process.env.DEV) {
+  pythonUrl.value = "http://localhost:8000";
+} else {
+  pythonUrl.value = "https://omh-python.herokuapp.com";
+}
 
 const $q = useQuasar();
 const store = useUserStore();
@@ -155,6 +182,103 @@ const summary_data = ref([]);
 const development_data = ref([]);
 
 const data_from_db = ref([]);
+
+const chart_data = ref([]);
+const display_data = ref({
+  labels: [],
+  datasets: [
+    {
+      label: "Annualised Interest Earned",
+      data: [],
+      backgroundColor: ["rgba(255, 26, 104, 0.4)"],
+      borderColor: ["rgba(255, 26, 104, 1)"],
+      borderWidth: 1,
+    },
+    {
+      label: "Return on Investment",
+      data: [],
+      backgroundColor: ["rgba(54, 162, 235, 0.4)"],
+      borderColor: ["rgba(54, 162, 235, 1)"],
+      borderWidth: 1,
+    },
+  ],
+});
+
+const options = ref({
+  scales: {},
+  plugins: {
+    title: {
+      display: true,
+      text: "Investment Summary",
+      color: "white",
+      font: {
+        size: 16,
+        bold: true,
+      },
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Investment Details",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+    },
+    y: {
+      title: {
+        display: true,
+        text: "Interest Rate (%)",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+    },
+  },
+});
+
+const get_chart_info = async () => {
+  let data = {
+    chartData: closed_investments.value,
+  };
+
+  await axios
+    .post(`${pythonUrl.value}/getChartData`, data)
+    .then((response) => {
+      chart_data.value = response.data.final_chart_data;
+
+      options.value.plugins.title.text = `Investment Summary - ${summary_data.value}`;
+      display_data.value.labels = [];
+      display_data.value.datasets.forEach((el) => {
+        el.data = [];
+      });
+
+      chart_data.value.forEach((el) => {
+        display_data.value.labels.push(
+          `${el.opportunity_code} - Inv No: ${el.investment_number}`
+        );
+        display_data.value.datasets[0].data.push(el.annualised_interest_rate);
+
+        display_data.value.datasets[1].data.push(el.return_on_investment);
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+const scrollToSection = (id) => {
+  const section = document.getElementById(id);
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth" });
+  }
+};
 
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
@@ -179,10 +303,7 @@ const capital = ref(0);
 const total = ref(0);
 const interest = ref(0);
 const investment_name = ref("");
-
-// summary_data
-
-// `/admin/useraccounts/${store.investor_acc_number}`
+const closed_investments = ref([]);
 
 const backToDashoard = () => {
   router.push(`/admin/useraccounts/${store.investor_acc_number}`);
@@ -197,6 +318,7 @@ const viewInvestmentsList = () => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
+    // console.log("XXX", response.data);
 
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {
@@ -224,6 +346,14 @@ const get_info = async () => {
     response.data = response.data.filter((el) => {
       return el.investor_acc_number === route.params.id;
     });
+
+    response.data.forEach((el) => {
+      if (el.amount_invested === "CLOSED") {
+        closed_investments.value.push(el);
+      }
+    });
+
+    // console.log("YYY", closed_investments.value);
 
     response.data = response.data.filter((el) => {
       return el.amount_invested !== "CLOSED";
@@ -318,7 +448,14 @@ const get_info = async () => {
   }
 };
 
-get_info();
+onBeforeMount(() => {
+  get_info().then(() => {
+    if (closed_investments.value.length > 0) {
+      get_chart_info();
+    }
+  });
+});
+// get_info();
 
 $q.dark.set(true);
 </script>
