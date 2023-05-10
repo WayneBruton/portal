@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <std-header />
-  
+
     <br /><br />
     <div class="row">
       <div class="col-1 col-md-1 col-lg-1 col-xl-1"></div>
@@ -125,24 +125,6 @@
                       size="s"
                       >View Statement</q-btn
                     >
-                    <!-- <q-btn
-                      style="margin-left: 5px; background: #5a6268; color: white"
-                      icon="remove_red_eye"
-                      no-caps
-                      :id="props.row._id"
-                      @click="invite(props.row)"
-                      size="s"
-                      >Investments</q-btn
-                    > -->
-                    <!-- <q-btn
-                      style="margin-left: 5px; background: #333333; color: white"
-                      icon="remove_red_eye"
-                      no-caps
-                      :id="props.row._id"
-                      @click="invite(props.row)"
-                      size="s"
-                      >Investor View</q-btn
-                    > -->
                   </q-td>
                 </q-tr>
               </template>
@@ -228,17 +210,11 @@ const initialPagination = {
   descending: false,
   page: 1,
   rowsPerPage: 30, // 0 means show all rows
-  // rowsNumber: xx if getting data from a server
 };
 
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments();
-
-    // response.data = response.data.filter((el) => {
-    //   return el.investor_acc_number !== "";
-    // })
-
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {
@@ -290,10 +266,10 @@ const viewStatement = async (row) => {
   router.push({ name: "adminStatements", params: data });
 };
 
-const invite = (e) => {
-  console.log(e);
-  // router.push({ name: "inviteInvestor", params: { id: e._id } });
-};
+// const invite = (e) => {
+//   console.log(e);
+
+// };
 
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();

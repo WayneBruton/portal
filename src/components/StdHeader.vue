@@ -253,7 +253,7 @@ let route_links = [
   },
   {
     path: "/admin/users",
-    name: "users",
+    name: "Users",
     icon: "mdi-account-group",
     color: "grey",
     isActive: false,

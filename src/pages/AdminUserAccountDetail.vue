@@ -48,6 +48,7 @@
         >
 
         <q-btn
+          v-if="closed_investments.length > 0"
           flat
           style="margin-left: 5px; background: transparant; color: green"
           icon="insert_chart_outlined"
@@ -123,7 +124,10 @@
     </div>
     <div class="row" v-if="development_data.length > 0">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
-      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
+      <div
+        class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md"
+        v-if="closed_investments.length > 0"
+      >
         <div>
           <BarChart id="section1" :chartData="display_data" :options="options" />
           <!-- <bar-chart :data="chartData" :options="chartOptions"></bar-chart> -->
