@@ -131,6 +131,8 @@ const store = useUserStore();
 
 let this_route = route.path;
 
+// console.log(store.name);
+
 // let screen_width = window.innerWidth;
 
 const screen_width = ref(window.innerWidth);
@@ -220,21 +222,7 @@ if (store.current_investment_viewed === "") {
   investor_view_links = investor_view_links;
 }
 
-// watchEffect(() => {
-//   if (store.current_investment_viewed === "") {
-//     investor_view_links.filter((item) => {
-//       return item.isActive === true;
-//       // if (item.path === `/admin/useraccountsdetail/${store.current_investment_viewed}`) {
-//       //   item.isActive = false;
-//       // } else {
-//       //   item.isActive = true;
-//       // }
-//       // return item.isActive;
-//     });
-//   }
-// });
-
-const route_links = [
+let route_links = [
   {
     path: "/admin",
     name: "Dashboard",
@@ -263,14 +251,18 @@ const route_links = [
     color: "grey",
     isActive: false,
   },
-  // {
-  //   path: "/admin/documents",
-  //   name: "Documents",
-  //   icon: "mdi-account-group",
-  //   color: "grey",
-  //   isActive: false,
-  // },
+  {
+    path: "/admin/users",
+    name: "users",
+    icon: "mdi-account-group",
+    color: "grey",
+    isActive: false,
+  },
 ];
+
+if (store.name !== "WayneAdmin" && store.name !== "Wayne" && store.name !== "Debbie") {
+  route_links = route_links.filter((item) => item.path !== "/admin/users");
+}
 </script>
 
 <style scoped>

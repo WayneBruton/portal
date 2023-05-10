@@ -37,4 +37,13 @@ export default {
   getInvestorDocs(data) {
     return api().post("/get_investor_docs", data);
   },
+  getAdminUsers() {
+    return api().post("/getAdminUsers");
+  },
+  addAdminUser(data) {
+    return api().post("/addAdminUser", data);
+  },
+  deleteAdminUser(data) {
+    return api().post("/deleteAdminUser", data);
+  },
 };

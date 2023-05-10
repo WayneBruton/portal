@@ -147,7 +147,6 @@
                 color="yellow"
               />
               <q-radio
-                disabled
                 v-model="method"
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
@@ -160,6 +159,7 @@
             <q-btn
               class="signin mainBtn"
               label="Get One Time pin (OTP)"
+              :disable="button_disabled"
               v-if="email_verified && otp_correct === false"
               @click="getOTP"
             />
@@ -307,14 +307,15 @@ const checkEmailAddress = async () => {
     email_verified.value = true;
     id_toChange_password.value = response.data._id;
     radioEmailLabel.value = `Email: ${response.data.email}`;
-    radioSMSLabel.value = `SMS: COMING SOON`;
-    // radioSMSLabel.value = `SMS: ${response.data.mobile}`;
+    // radioSMSLabel.value = `SMS: COMING SOON`;
+    radioSMSLabel.value = `SMS: ${response.data.mobile}`;
   }
 };
 
 const otp = ref(null);
 const otp_received = ref("");
 const otp_correct = ref(false);
+const button_disabled = ref(false);
 
 const getOTP = async () => {
   try {
@@ -324,19 +325,35 @@ const getOTP = async () => {
       email: radioEmailLabel.value,
       mobile: radioSMSLabel.value,
     };
+    button_disabled.value = true;
+    // console.log(data);
     await axios({
       method: "post",
       url: `${urlPython.value}/generate_otp`,
       data: data,
     }).then(
       (response) => {
+        console.log(response.data);
         otp_received.value = response.data.otp;
         otp_time.value = 60 * 20;
         timer;
+        $q.notify({
+          color: "positive",
+          message: "OTP sent successfully",
+          position: "top",
+          icon: "check_circle",
+        });
       },
       (error) => {
         console.error(error);
-        // clearInterval(interval_call);
+        $q.notify({
+          color: "negative",
+          message: "Error in sending OTP",
+          position: "top",
+          icon: "report_problem",
+        });
+        button_disabled.value = false;
+        clearInterval(interval_call);
         // loading.value = false;
         // closeDialog();
       }
@@ -394,6 +411,7 @@ const timer = setInterval(() => {
     otp_time_show.value = `${minutes}:${seconds}`;
   } else {
     clearInterval(timer);
+    button_disabled.value = false;
   }
 }, 1000);
 

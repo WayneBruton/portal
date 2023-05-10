@@ -63,6 +63,11 @@ const routes = [
         name: "userotherdocuments",
         component: () => import("pages/AdminOtherDocuments.vue"),
       },
+      {
+        path: "/admin/users",
+        name: "users",
+        component: () => import("pages/AdminUsers.vue"),
+      },
     ],
   },
   {
