@@ -2,16 +2,17 @@
   <q-page>
     <std-header />
     <br /><br />
-    
+
     <div class="row">
       <div class="col-1"></div>
       <div class="col">
-        <q-card
-          class="my-card text-white"
-          style="
+        <!-- style="
             background: radial-gradient(circle, #e7d4a0 0%, #b47b1d 100%);
             height: 100%;
-          "
+          " -->
+        <q-card
+          class="my-card text-white"
+          style="height: 100%; border: 1px solid #e7d4a0"
         >
           <q-card-section>
             <div class="text-h6" style="text-align: center">Admin Dashboard</div>
@@ -36,55 +37,54 @@
     <div class="row">
       <div class="col-1"></div>
       <div class="col">
-        <q-card class="my-card text-white" style="margin: 10px 10px; padding: 10px">
+        <q-card class="my-card text-white" style="margin: 10px 10px; padding: 0px">
           <q-card-section class="q-pt-none">
             <q-card
               class="my-card text-white"
               v-for="(dev, index) in development_data"
               :key="index"
-              style="margin: 10px 10px; background: #3c3c3c; padding: 10px"
+              style="
+                margin: 10px 0px;
+                background: #3c3c3c;
+                padding: 00px;
+                border: 1px solid #e7d4a0;
+              "
             >
               <br />
               <q-card-section>
-                <div class="text-h4">{{ dev.development }}</div>
+                <div class="text-h5">{{ dev.development }}</div>
               </q-card-section>
               <q-card-section class="q-pt-none">
                 <div class="row">
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-first">
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-first">
                     <div class="summaryDetail">Investment Requirement</div>
                   </div>
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-second">
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-fourth">
+                    <div class="summaryDetail">Current Investment</div>
+                  </div>
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-fifth">
+                    <div class="summaryDetail">Shortfall</div>
+                  </div>
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-sixth">
+                    <div class="summaryDetail">Total Investments</div>
+                  </div>
+
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-second">
                     <div class="summaryDetail">
                       {{ dev.investment_required }}
                     </div>
                   </div>
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-third">
-                    <div style="margin: 5px 10px; padding: 5px"></div>
-                  </div>
-                  <!-- </div> -->
-                  <!-- <div class="row"> -->
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-fourth">
-                    <div class="summaryDetail">Current Investment</div>
-                  </div>
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-fifth">
-                    <div class="summaryDetail">Shortfall</div>
-                  </div>
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-sixth">
-                    <div class="summaryDetail">Total Investments</div>
-                  </div>
-                  <!-- </div> -->
-                  <!-- <div class="row"> -->
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-seventh">
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-seventh">
                     <div class="summaryDetail">
                       {{ dev.current_investment_value }}
                     </div>
                   </div>
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-eighth">
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-eighth">
                     <div class="summaryDetail">
                       {{ dev.investment_shortfall }}
                     </div>
                   </div>
-                  <div class="col-12 col-md-4 col-lg-4 col-xl-4 col-nineth">
+                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-nineth">
                     <div class="summaryDetail">
                       {{ dev.total_investments }}
                     </div>
@@ -183,8 +183,10 @@ $q.dark.set(true);
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 }
 .summaryDataMain {
-  background-color: #d6b674;
-  border: 1px solid #e4cf95;
+  background-color: #887238;
+  border: 1px solid #cfac67;
+  /* background-color: #d6b674;
+  border: 1px solid #e4cf95; */
 }
 
 .summaryDataChild {

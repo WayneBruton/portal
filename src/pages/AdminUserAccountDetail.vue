@@ -1,12 +1,11 @@
 <template>
   <q-page>
     <std-header />
-    <br /><br />
 
+    <br /><br />
     <div class="row">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
-        <!-- background: radial-gradient(circle, #e7d4a0 0%, #b47b1d 100%); -->
         <q-card
           class="my-card text-white"
           style="height: 100%; border: 1px solid #e7d4a0"
@@ -67,13 +66,11 @@
       <div class="col">
         <q-card class="my-card text-white" style="margin: 10px 10px; padding: 10px">
           <q-card-section class="q-pt-none">
-            <!-- background: #3c3c3c; padding: 10px; -->
-            <!-- #e7d4a0 -->
             <q-card
               class="my-card text-white"
               v-for="(dev, index) in development_data"
               :key="index"
-              style="margin: 10px 10px; border: 1px solid #3c3c3c"
+              style="margin: 10px 1px; border: 1px solid #e7d4a0"
             >
               <br />
               <q-card-section>
@@ -124,27 +121,14 @@
     </div>
     <div class="row" v-if="development_data.length > 0">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
-      <div
-        class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md"
-        v-if="closed_investments.length > 0"
-      >
-        <div>
+      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
+        <!-- <div>
           <BarChart id="section1" :chartData="display_data" :options="options" />
-          <!-- <bar-chart :data="chartData" :options="chartOptions"></bar-chart> -->
-        </div>
-        <!-- <div
-          style="
-            width: 100%;
-            height: 200px;
-            background: black;
-            border: 1px solid white;
-            border-radius: 5px;
-          "
-        >
-          <span style="color: white"
-            >GRAPH GOES HERE - DEFAULT LAST CLOSED INVESTMENT</span
-          >
         </div> -->
+
+        <div>
+          <GraphInvestments id="section1" :display_data="display_data" v-if="showGraph" />
+        </div>
       </div>
 
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
@@ -156,30 +140,29 @@
 import { ref, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
+import pythonService from "../services/pythonService";
 import { useUserStore } from "../stores/userStore";
 import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
+import GraphInvestments from "../components/GraphInvestments.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import dayjs from "dayjs";
 import axios from "axios";
-import { BarChart } from "vue-chart-3";
-import { Chart, registerables } from "chart.js";
-Chart.register(...registerables);
+// import { BarChart } from "vue-chart-3";
+// import { Chart, registerables } from "chart.js";
+// import ChartDataLabels from "chartjs-plugin-datalabels";
+// Chart.register(ChartDataLabels);
+// Chart.register(...registerables);
 
 verifyUser();
-
-let pythonUrl = ref("");
-
-if (process.env.DEV) {
-  pythonUrl.value = "http://localhost:8000";
-} else {
-  pythonUrl.value = "https://omh-python.herokuapp.com";
-}
 
 const $q = useQuasar();
 const store = useUserStore();
 const router = useRouter();
 const route = useRoute();
+
+store.display_data = {};
+store.summary_data = "";
 
 const summary_data = ref([]);
 
@@ -188,76 +171,54 @@ const development_data = ref([]);
 const data_from_db = ref([]);
 
 const chart_data = ref([]);
+
+const graph_data = ref([]);
+
 const display_data = ref({
   labels: [],
   datasets: [
     {
-      label: "Annualised Interest Earned",
+      label: "Ave p.a return",
       data: [],
       backgroundColor: ["rgba(255, 26, 104, 0.4)"],
       borderColor: ["rgba(255, 26, 104, 1)"],
       borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
     },
     {
-      label: "Return on Investment",
+      label: "ROI",
       data: [],
       backgroundColor: ["rgba(54, 162, 235, 0.4)"],
       borderColor: ["rgba(54, 162, 235, 1)"],
       borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
     },
   ],
 });
 
-const options = ref({
-  scales: {},
-  plugins: {
-    title: {
-      display: true,
-      text: "Investment Summary",
-      color: "white",
-      font: {
-        size: 16,
-        bold: true,
-      },
-    },
-  },
-  scales: {
-    x: {
-      title: {
-        display: true,
-        text: "Investment Details",
-        color: "white",
-        font: {
-          size: 14,
-          bold: true,
-        },
-      },
-    },
-    y: {
-      title: {
-        display: true,
-        text: "Interest Rate (%)",
-        color: "white",
-        font: {
-          size: 14,
-          bold: true,
-        },
-      },
-    },
-  },
-});
+const showGraph = ref(false);
 
 const get_chart_info = async () => {
+  store.display_data = {};
+  store.summary_data = "";
+  if (closed_investments.value.length === 0) {
+    return;
+  }
   let data = {
     chartData: closed_investments.value,
   };
 
-  await axios
-    .post(`${pythonUrl.value}/getChartData`, data)
+  await pythonService
+    .getChartData(data)
     .then((response) => {
       chart_data.value = response.data.final_chart_data;
 
-      options.value.plugins.title.text = `Investment Summary - ${summary_data.value}`;
+      // options.value.plugins.title.text = `Investment Summary - ${summary_data.value}`;
+      store.summary_data = summary_data.value;
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {
         el.data = [];
@@ -271,6 +232,8 @@ const get_chart_info = async () => {
 
         display_data.value.datasets[1].data.push(el.return_on_investment);
       });
+      store.display_data = display_data.value;
+      showGraph.value = true;
     })
     .catch((error) => {
       console.log(error);
@@ -322,7 +285,6 @@ const viewInvestmentsList = () => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
-    // console.log("XXX", response.data);
 
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {
@@ -356,8 +318,6 @@ const get_info = async () => {
         closed_investments.value.push(el);
       }
     });
-
-    // console.log("YYY", closed_investments.value);
 
     response.data = response.data.filter((el) => {
       return el.amount_invested !== "CLOSED";

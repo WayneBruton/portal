@@ -129,6 +129,8 @@
 import { ref, onBeforeMount, watchEffect } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
+import pythonService from "../services/pythonService";
+import globalVariables from "../services/globalVariables";
 import { useUserStore } from "../stores/userStore";
 import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
@@ -347,14 +349,6 @@ const get_info = async () => {
   }
 };
 
-const urlPython = ref("");
-
-if (process.env.DEV) {
-  urlPython.value = "http://localhost:8000";
-} else {
-  urlPython.value = "https://omh-python.herokuapp.com";
-}
-
 const href1 = ref("");
 const href2 = ref("");
 
@@ -363,25 +357,24 @@ const create_statements = async () => {
     let data = {
       data: rows.value,
     };
-    await axios({
-      method: "post",
-      url: `${urlPython.value}/create_portal_statements`,
-      data: data,
-    }).then(
-      (response) => {
+
+    await pythonService
+      .create_portal_statement(data)
+      .then((response) => {
         if (response.data.type1) {
-          let newHref = `${urlPython.value}/get_investor_statement?investor_statement_name=${response.data.type1}`;
+          let newHref = `${globalVariables.value}/get_investor_statement?investor_statement_name=${response.data.type1}`;
+          // let newHref = `${urlPython.value}/get_investor_statement?investor_statement_name=${response.data.type1}`;
           href1.value = `${newHref}`;
         }
         if (response.data.type2) {
-          let newHref = `${urlPython.value}/get_investor_statement?investor_statement_name=${response.data.type2}`;
+          let newHref = `${globalVariables.value}/get_investor_statement?investor_statement_name=${response.data.type2}`;
+          // let newHref = `${urlPython.value}/get_investor_statement?investor_statement_name=${response.data.type2}`;
           href2.value = `${newHref}`;
         }
-      },
-      (error) => {
+      })
+      .catch((error) => {
         console.error(error);
-      }
-    );
+      });
   } catch (error) {
     console.error(error);
   }

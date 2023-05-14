@@ -127,17 +127,10 @@ import { useUserStore } from "../stores/userStore";
 const route = useRoute();
 const router = useRouter();
 const store = useUserStore();
-// console.log(route.path);
 
 let this_route = route.path;
 
-// console.log(store.name);
-
-// let screen_width = window.innerWidth;
-
 const screen_width = ref(window.innerWidth);
-
-// console.log(screen_width.value)
 
 const handleResize = () => {
   screen_width.value = window.innerWidth;
@@ -180,6 +173,13 @@ let investor_view_links = [
     isActive: false,
   },
   {
+    path: `/admin/useraccounts/investor/${store.investor_acc_number}`,
+    name: "Investment List",
+    icon: "mdi-account-group",
+    color: "grey",
+    isActive: false,
+  },
+  {
     path: `/admin/loanagreements/${store.investor_acc_number}`,
     name: "Agreements",
     icon: "mdi-account-group",
@@ -203,13 +203,6 @@ let investor_view_links = [
     color: "white",
     isActive: true,
   },
-  // {
-  //   path: "/admin",
-  //   name: "Back to Admin Dashboard",
-  //   icon: "mdi-account-group",
-  //   color: "white",
-  //   isActive: false,
-  // },
 ];
 
 if (store.role === "INVESTOR") {
@@ -221,6 +214,8 @@ if (store.current_investment_viewed === "") {
 } else {
   investor_view_links = investor_view_links;
 }
+
+// console.log(route.path);
 
 let route_links = [
   {

@@ -1,7 +1,6 @@
 <template>
   <q-page>
     <std-header />
-
     <br /><br />
     <div class="row">
       <div class="col-1 col-md-1 col-lg-1 col-xl-1"></div>

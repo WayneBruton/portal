@@ -10,7 +10,7 @@
             <q-table
               class="my-sticky-header-table"
               ref="table"
-              title="USERS"
+              title="Users"
               :rows="rows"
               :columns="columns"
               :filter="filter"

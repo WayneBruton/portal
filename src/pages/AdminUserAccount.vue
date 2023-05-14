@@ -2,7 +2,14 @@
   <q-page>
     <std-header />
     <br />
-    <MarqueeText duration="35" style="margin-bottom: 15px" v-if="stock_market.length > 0">
+    <MarqueeText
+      duration="35"
+      style="margin-bottom: 15px"
+      :paused="paused"
+      v-if="stock_market.length > 0"
+      :onmouseover="mouseoverTicker"
+      :onmouseout="mouseoutTicker"
+    >
       <q-chip
         :square="square"
         :dense="dense"
@@ -43,7 +50,7 @@
           style="height: 100%; border: 1px solid #e7d4a0"
         >
           <q-card-section>
-            <div class="text-h6" style="text-align: center">Investment Summary</div>
+            <div class="text-h6" style="text-align: center">Dashboard</div>
           </q-card-section>
 
           <q-card-section class="q-pt-none">
@@ -66,8 +73,11 @@
     <br /><br />
     <div class="row">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
-      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
-        <q-card class="my-card text-white my-card-header">
+      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
+        <q-card
+          class="my-card text-white my-card-header"
+          style="height: 100%; width: 100%; border: 1px solid #e7d4a0"
+        >
           <q-card-section>
             <div
               class="row text-white my-card myCardDetail"
@@ -112,6 +122,21 @@
       </div>
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
     </div>
+    <div class="row" v-if="development_data.length == 1">
+      <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
+      <!-- v-if="closed_investments.length > 0 && store.display_data !== {}" -->
+      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
+        <!-- <div>
+          <BarChart id="section1" :chartData="display_data" :options="options" />
+        </div> -->
+
+        <div>
+          <GraphInvestments id="section1" :display_data="display_data" v-if="showGraph" />
+        </div>
+      </div>
+
+      <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
+    </div>
   </q-page>
 </template>
 
@@ -119,12 +144,14 @@
 import { ref, onBeforeMount, onMounted, computed, watchEffect } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
+import pythonService from "../services/pythonService";
 import { useUserStore } from "../stores/userStore";
 import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import MarqueeText from "vue-marquee-text-component";
 import axios from "axios";
+import GraphInvestments from "../components/GraphInvestments.vue";
 
 verifyUser();
 
@@ -133,12 +160,11 @@ const store = useUserStore();
 const router = useRouter();
 const route = useRoute();
 
+store.summary_data = "";
+store.display_data = {};
+
 const url = ref(
   process.env.DEV ? "http://localhost:3000" : "https://opportunity.eu-4.evennode.com"
-);
-
-const urlPython = ref(
-  process.env.DEV ? "http://localhost:8000" : "https://omh-python.herokuapp.com"
 );
 
 const get_stock_data = async () => {
@@ -146,16 +172,29 @@ const get_stock_data = async () => {
     // stock_market.value = [];
     stock_market.value = store.stock_market;
 
-    const response = await axios
-      .get(`${urlPython.value}/stock_market`)
+    const response = await pythonService
+      .getStockMarketData()
       .then((response) => {
         stock_market.value = [];
         stock_market.value = response.data.stock_market;
         store.stock_market = response.data.stock_market;
+      })
+      .catch((error) => {
+        console.error(error);
       });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
+};
+
+const paused = ref(false);
+
+const mouseoverTicker = () => {
+  paused.value = true;
+};
+
+const mouseoutTicker = () => {
+  paused.value = false;
 };
 
 onBeforeMount(() => {
@@ -163,7 +202,7 @@ onBeforeMount(() => {
   store.files = [];
   store.loanAgreements = [];
 
-  get_stock_data();
+  // get_stock_data();
 });
 
 const getItemStyle = (color) => {
@@ -180,9 +219,9 @@ const getItemStyle = (color) => {
 // watchEfect stock_market.value and update styles accordingly
 
 // get_stock_data every 15 minutes - TURN ON AFTER UPGRADE
-// setInterval(() => {
-//   get_stock_data();
-// }, 1000 * 60 * 15);
+setInterval(() => {
+  get_stock_data();
+}, 1000 * 60 * 15);
 
 const square = ref(true);
 const dense = ref(false);
@@ -220,7 +259,6 @@ const interest = ref(0);
 const getInvestorDocs = async () => {
   try {
     const response = await nodeService.getInvestorDocs(route.params);
-    // console.log(response.data);
 
     store.files = [];
     store.loanAgreements = [];
@@ -250,6 +288,8 @@ const getInvestorDocs = async () => {
   }
 };
 
+const closed_investments = ref([]);
+
 onBeforeMount(() => {
   getInvestorDocs();
 });
@@ -257,7 +297,6 @@ onBeforeMount(() => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
-    // console.log(response.data);
 
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {
@@ -279,6 +318,10 @@ const get_info = async () => {
         return 1;
       }
       return 0;
+    });
+
+    closed_investments.value = response.data.filter((el) => {
+      return el.amount_invested === "CLOSED";
     });
 
     response.data = response.data.filter((el) => {
@@ -325,6 +368,74 @@ const get_info = async () => {
   }
 };
 
+const display_data = ref({
+  labels: [],
+  datasets: [
+    {
+      label: "Ave p.a return",
+      data: [],
+      backgroundColor: ["rgba(255, 26, 104, 0.4)"],
+      borderColor: ["rgba(255, 26, 104, 1)"],
+      borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
+    },
+    {
+      label: "ROI",
+      data: [],
+      backgroundColor: ["rgba(54, 162, 235, 0.4)"],
+      borderColor: ["rgba(54, 162, 235, 1)"],
+      borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
+    },
+  ],
+});
+
+const chart_data = ref([]);
+
+const showGraph = ref(false);
+
+const get_chart_info = async () => {
+  store.display_data = {};
+  store.summary_data = "";
+  if (development_data.value.length > 1) {
+    return;
+  }
+  if (closed_investments.value.length === 0) {
+    return;
+  }
+  let data = {
+    chartData: closed_investments.value,
+  };
+
+  let response = await pythonService
+    .getChartData(data)
+    .then((response) => {
+      chart_data.value = response.data.final_chart_data;
+      display_data.value.labels = [];
+      display_data.value.datasets.forEach((el) => {
+        el.data = [];
+      });
+
+      chart_data.value.forEach((el) => {
+        display_data.value.labels.push(
+          `${el.opportunity_code} - Inv No: ${el.investment_number}`
+        );
+        display_data.value.datasets[0].data.push(el.annualised_interest_rate);
+
+        display_data.value.datasets[1].data.push(el.return_on_investment);
+      });
+      store.display_data = display_data.value;
+      showGraph.value = true;
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
 const getCurrentInvestorSummary = (e) => {
   store.current_investment_viewed = e;
   router.push({
@@ -335,7 +446,13 @@ const getCurrentInvestorSummary = (e) => {
   });
 };
 
-get_info();
+onBeforeMount(() => {
+  get_info().then(() => {
+    get_chart_info().then(() => {
+      get_stock_data();
+    });
+  });
+});
 
 const viewInvestmentsList = (e) => {
   store.current_investment_viewed = e;

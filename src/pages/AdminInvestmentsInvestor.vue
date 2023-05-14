@@ -1,8 +1,8 @@
 <template>
   <q-page>
     <std-header />
-    <br /><br />
 
+    <br /><br />
     <div class="row" v-if="screenwidth > 1023">
       <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10">
@@ -11,7 +11,7 @@
             <q-table
               class="my-sticky-header-table"
               ref="table"
-              title="Investments"
+              title="Investment List"
               :rows="rows"
               :grid="gridMode"
               :columns="columns"
@@ -317,30 +317,44 @@
     <q-dialog v-model="fullWidth" full-width>
       <q-card class="">
         <q-card-section>
-          <div class="text-h6">
-            Exit / Rollover -Estimated Exit Date: {{ investmentExit.estimated_exit_date }}
-          </div>
+          <div class="text-h6">Exit / Rollover</div>
+        </q-card-section>
+
+        <q-card-section>
+          <p>
+            With reference to the Investment specified below, the next investment cycle is
+            in the planning phase, and it is necessary to determine what your intention
+            might be upon exit of this investment. We will be in further communication
+            closer to the exit date for your final decision.
+          </p>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <div style="display: flex; flex-direction: column">
-            <div>
-              {{ investmentExit.investment_name }}
-            </div>
-            <br />
-            <div>
-              {{ investmentExit.investor_acc_number }}
-            </div>
-            <div>
-              {{ investmentExit.opportunity_code }}
-            </div>
+            <div style="display: flex; justify-content: space-evenly">
+              <div style="align-text: center; width: 30%">
+                <strong>Investment Name:</strong>
+                {{ investmentExit.investment_name }}
+              </div>
 
-            <hr style="width: 100%" />
+              <div style="align-text: center; width: 30%">
+                <strong>Account Number: </strong> {{ investmentExit.investor_acc_number }}
+              </div>
+              <div style="align-text: center; width: 30%">
+                <strong>Unit:</strong> {{ investmentExit.opportunity_code }}
+              </div>
+            </div>
             <br />
+            <hr style="width: 100%" />
+
             <div style="display: flex">
               <div style="width: 30%; text-align: center">Amount Invested</div>
-              <div style="width: 30%; text-align: center">Interest - Today</div>
-              <div style="width: 30%; text-align: center">Balance - Today</div>
+              <div style="width: 30%; text-align: center">
+                Interest: {{ dayjs(new Date()).format("YYYY-MM-DD") }}
+              </div>
+              <div style="width: 30%; text-align: center">
+                Balance: {{ dayjs(new Date()).format("YYYY-MM-DD") }}
+              </div>
             </div>
             <div style="display: flex">
               <div style="width: 30%; text-align: center">
@@ -353,46 +367,36 @@
                 {{ investmentExit.balance }}
               </div>
             </div>
-            <br />
+
             <hr style="width: 100%" />
+            <br />
+            <p>
+              PLease refer to important information below
+              <strong>before</strong> submitting the form.
+            </p>
 
             <p>
-              <strong>Disclaimer:</strong> The figures below are based on an estimated
-              transfer date of {{ investmentExit.estimated_exit_date }}. As the estimated
-              transfer date could change, the estimated interest and estimated exit
-              figures below would change as well.
+              <strong>Disclaimer:</strong> The following is applicable to the next
+              available investment phase. Please note these figures are based on
+              {{ dayjs(new Date()).format("YYYY-MM-DD") }} and will change depending on
+              the actual transfer date.
             </p>
-            <br />
-            <hr style="width: 100%" />
-            <br />
-            <div style="display: flex">
-              <div style="width: 22%; text-align: center">Interest Rate</div>
-              <div style="width: 22%; text-align: center">Daily Interest</div>
-              <div style="width: 22%; text-align: center">Estimated Interest Accrual</div>
-              <div style="width: 22%; text-align: center">Estimated Balance</div>
-            </div>
-            <div style="display: flex">
-              <div style="width: 22%; text-align: center">
-                {{ investmentExit.released_interest }}
-              </div>
-              <div style="width: 22%; text-align: center">
-                {{ investmentExit.daily_interest }}
-              </div>
-              <div style="width: 22%; text-align: center">
-                {{ investmentExit.estimated_interest }}
-              </div>
-              <div style="width: 22%; text-align: center">
-                {{ investmentExit.estimated_exit_amount }}
-              </div>
-            </div>
-            <br />
+            <p>
+              <strong>Fixed Investor Returns:</strong> The projected returns below are
+              applicable to the next investment cycle. Please note that these are subject
+              to change and should this occur, Opportunity will communicate this to you.
+            </p>
+            <ol>
+              <li>Investments of R 100 000 – R 499 000 @14% p.a</li>
+              <li>Investments of R 500 000 – R 999 000 @ 16% p.a</li>
+              <li>Investments of R 1 000 000 upwards @ 18% p.a</li>
+            </ol>
             <hr style="width: 100%" />
             <br />
             <div>
               Please Indicate below which option you are interested in when transfer
               occurs, and we will contact you to confirm:
             </div>
-            <br />
             <br />
             <div style="display: flex">
               <div style="width: 25%">
@@ -406,7 +410,7 @@
                 />
               </div>
               <div style="width: 25%; margin: 5px; text-align: end">
-                {{ investmentExit.estimated_exit_amount }}
+                {{ investmentExit.balance }}
               </div>
             </div>
             <hr style="width: 90%; border-color: grey" />
@@ -421,7 +425,7 @@
                 />
               </div>
               <div style="width: 25%; margin: 5px; text-align: end">
-                {{ investmentExit.estimated_exit_amount }}
+                {{ investmentExit.balance }}
               </div>
             </div>
             <hr style="width: 90%; border-color: grey" />
@@ -438,13 +442,6 @@
               </div>
               <div style="display: flex; flex-direction: column; width: 70%">
                 <div style="display: flex; margin: 5px; text-align: end">
-                  <q-btn
-                    icon="arrow_back_ios"
-                    style="height: 35px"
-                    @click="decreaseRollover"
-                    :disable="!investmentExit.partial_exit"
-                    >5k</q-btn
-                  >
                   <QCurrencyInput
                     dense
                     label="Rollover Amount"
@@ -453,21 +450,22 @@
                     debounce="500"
                     @update:model-value="updateFloat_investment"
                     :disable="!investmentExit.partial_exit"
+                    hint="Enter the amount you would like to rollover"
                   />
-
-                  <q-btn
-                    icon-right="arrow_forward_ios"
-                    style="height: 35px"
-                    @click="increaseRollover"
-                    :disable="!investmentExit.partial_exit"
-                    >5k</q-btn
-                  >
-
                   <QCurrencyInput
                     style="margin-left: 25px"
                     dense
                     label="Exit Amount"
-                    v-model="investmentExit.estimated_exit_amount2"
+                    v-model="investmentExit.float_exit"
+                    :options="{ currency: 'ZAR' }"
+                    disable
+                    prepend="R"
+                  />
+                  <QCurrencyInput
+                    style="margin-left: 25px"
+                    dense
+                    label="Total"
+                    v-model="investmentExit.float_balance"
                     :options="{ currency: 'ZAR' }"
                     disable
                     prepend="R"
@@ -486,30 +484,24 @@
                 color="yellow"
               />
             </div>
-            <div>
-              <q-checkbox
-                v-model="investmentExit.copy_me_on_email"
-                keep-color
-                label="Copy me in on email sent to opportunity Admin."
-                color="green"
-              />
-            </div>
             <br />
             <span
+              style="color: yellow"
               v-if="
                 !investmentExit.agree ||
                 (!investmentExit.full_exit &&
                   !investmentExit.full_rollover &&
                   !investmentExit.partial_exit)
               "
-              >The button is disabled if you have not chosen and option and agreed to to
-              the terms</span
+              >The button is disabled if you have not chosen an option
+              <strong><u>and</u></strong> agreed to to the terms</span
             >
             <div style="margin: 10px 0px">
               <q-btn
                 color="amber"
                 no-caps
                 v-close-popup
+                @click="submitExit"
                 :disable="
                   !investmentExit.agree ||
                   (!investmentExit.full_exit &&
@@ -524,7 +516,7 @@
         </q-card-section>
 
         <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn flat label="Cancel" v-close-popup />
+          <q-btn flat label="Close" color="black" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -535,24 +527,20 @@
 import { ref, onBeforeMount, onMounted, watchEffect, watch } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
+import pythonService from "../services/pythonService";
 import { useUserStore } from "../stores/userStore";
 import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
+// import GraphInvestments from "../components/GraphInvestments.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import dayjs from "dayjs";
 import QCurrencyInput from "../components/QCurrencyInput.vue";
 import axios from "axios";
 import { BarChart } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+Chart.register(ChartDataLabels);
 Chart.register(...registerables);
-
-let pythonUrl = ref("");
-
-if (process.env.DEV) {
-  pythonUrl.value = "http://localhost:8000";
-} else {
-  pythonUrl.value = "https://omh-python.herokuapp.com";
-}
 
 const $q = useQuasar();
 const store = useUserStore();
@@ -582,6 +570,9 @@ const display_data = ref({
       backgroundColor: ["rgba(255, 26, 104, 0.4)"],
       borderColor: ["rgba(255, 26, 104, 1)"],
       borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
     },
     {
       label: "Return on Investment",
@@ -589,6 +580,9 @@ const display_data = ref({
       backgroundColor: ["rgba(54, 162, 235, 0.4)"],
       borderColor: ["rgba(54, 162, 235, 1)"],
       borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
     },
   ],
 });
@@ -605,7 +599,48 @@ const options = ref({
         bold: true,
       },
     },
+    legend: {
+      display: true,
+      position: "bottom",
+      labels: {
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+    },
+    datalabels: {
+      display: true,
+      anchor: "end",
+      align: "end",
+      offset: 5,
+      color: "white",
+      font: {
+        size: 11,
+      },
+      formatter: function (value, context) {
+        return value + "%";
+      },
+      position: "top",
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          var label = context.dataset.label || "";
+
+          if (label) {
+            label += ": ";
+          }
+          if (context.parsed.y !== null) {
+            label += context.parsed.y + "%";
+          }
+          return label;
+        },
+      },
+    },
   },
+
   scales: {
     x: {
       title: {
@@ -637,13 +672,13 @@ const get_chart_info = async () => {
     chartData: closed_investments.value,
   };
 
-  await axios
-    .post(`${pythonUrl.value}/getChartData`, data)
+  await pythonService
+    .getChartData(data)
     .then((response) => {
       chart_data.value = [];
       chart_data.value = response.data.final_chart_data;
 
-      options.value.plugins.title.text = `Investment Summary`;
+      options.value.plugins.title.text = `Investment Summary - ${closed_investments.value[0].investor_acc_number}`;
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {
         el.data = [];
@@ -769,11 +804,6 @@ const updateCheckbox_partial_exit = () => {
 const exitInvestment = (e) => {
   investmentExit.value = {};
   investmentExit.value = e;
-  investmentExit.value.estimated_exit_date = dayjs(new Date())
-    .add(7, "d")
-    .format("YYYY-MM-DD");
-  investmentExit.value.supplementary_rate = 10.5;
-  investmentExit.value.released_interest = 18;
 
   investmentExit.value.float_investment = parseFloat(
     investmentExit.value.amount_invested.replace(/[^0-9.]/g, "")
@@ -781,40 +811,15 @@ const exitInvestment = (e) => {
   investmentExit.value.float_balance = parseFloat(
     investmentExit.value.balance.replace(/[^0-9.]/g, "")
   );
-  investmentExit.value.daily_interest =
-    (investmentExit.value.float_investment * investmentExit.value.released_interest) /
-    100 /
-    365;
-  investmentExit.value.estimated_interest = investmentExit.value.daily_interest * 7;
-  investmentExit.value.estimated_exit_amount =
-    investmentExit.value.float_balance + investmentExit.value.estimated_interest;
 
   investmentExit.value.current_interest_earned = convertToString(
     investmentExit.value.float_balance - investmentExit.value.float_investment
   );
 
-  investmentExit.value.released_interest = investmentExit.value.released_interest + " %";
+  investmentExit.value.float_exit =
+    investmentExit.value.float_balance - investmentExit.value.float_investment;
 
-  investmentExit.value.daily_interest = convertToString(
-    investmentExit.value.daily_interest
-  );
-
-  investmentExit.value.estimated_interest = convertToString(
-    investmentExit.value.estimated_interest
-  );
-
-  investmentExit.value.exitInterest = convertToString(
-    investmentExit.value.estimated_exit_amount - investmentExit.value.float_investment
-  );
-
-  investmentExit.value.estimated_exit_amount2 =
-    investmentExit.value.estimated_exit_amount - investmentExit.value.float_investment;
-  investmentExit.value.estimated_exit_amount3 =
-    investmentExit.value.estimated_exit_amount;
-
-  investmentExit.value.estimated_exit_amount = convertToString(
-    investmentExit.value.estimated_exit_amount
-  );
+  investmentExit.value.float_balance = investmentExit.value.float_balance;
 
   investmentExit.value.full_exit = false;
   investmentExit.value.full_rollover = false;
@@ -826,24 +831,13 @@ const exitInvestment = (e) => {
   fullWidth.value = true;
 };
 
+const submitExit = () => {
+  console.log(investmentExit.value);
+};
+
 const updateFloat_investment = () => {
-  investmentExit.value.estimated_exit_amount2 =
-    investmentExit.value.estimated_exit_amount3 - investmentExit.value.float_investment;
-};
-
-const decreaseRollover = () => {
-  investmentExit.value.float_investment = investmentExit.value.float_investment - 5000;
-  updateFloat_investment();
-};
-
-const increaseRollover = () => {
-  investmentExit.value.float_investment = investmentExit.value.float_investment + 5000;
-  if (
-    investmentExit.value.float_investment > investmentExit.value.estimated_exit_amount3
-  ) {
-    investmentExit.value.float_investment = investmentExit.value.estimated_exit_amount3;
-  }
-  updateFloat_investment();
+  investmentExit.value.float_exit =
+    investmentExit.value.float_balance - investmentExit.value.float_investment;
 };
 
 const viewStatement = async (row) => {

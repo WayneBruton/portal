@@ -99,6 +99,7 @@
 import { ref, onBeforeMount } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
+import pythonService from "../services/pythonService";
 import { useUserStore } from "../stores/userStore";
 import { useRouter } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
@@ -110,13 +111,6 @@ const store = useUserStore();
 const router = useRouter();
 
 const filter = ref("");
-
-const urlPython = ref("");
-if (process.env.DEV) {
-  urlPython.value = "http://localhost:8000";
-} else {
-  urlPython.value = "https://omh-python.herokuapp.com";
-}
 
 verifyUser();
 
@@ -223,10 +217,10 @@ const investorUserAccounts = (e) => {
 };
 
 const invite = async (e) => {
-  console.log(e);
+  // console.log(e);
 
-  await axios
-    .post(`${urlPython.value}/add_investor`, {
+  const response = await pythonService
+    .addInvestorToPortal({
       email: e.investor_email,
       name: e.investor_name,
       surname: e.investor_surname,
@@ -234,8 +228,7 @@ const invite = async (e) => {
       id: e._id,
     })
     .then((res) => {
-      // console.log(res);
-      console.log(res.data);
+      // console.log("RESS", res);
       if (res.data.message === "Email sent successfully") {
         $q.notify({
           message: "Email sent successfully",
@@ -250,12 +243,15 @@ const invite = async (e) => {
           position: "top",
         });
       }
+    })
+    .catch((err) => {
+      console.log(err);
+      $q.notify({
+        message: "Email not sent",
+        color: "red",
+        position: "top",
+      });
     });
-
-  // const response = await nodeService.addInvestorToPortal(e);
-  // console.log(response.data);
-
-  // router.push({ name: "inviteInvestor", params: { id: e._id } });
 };
 
 const convertToString = (factor) => {

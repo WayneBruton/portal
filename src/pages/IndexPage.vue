@@ -259,6 +259,7 @@
 import { ref, watch, computed } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
+import pythonService from "../services/pythonService";
 import { useUserStore } from "../stores/userStore";
 import { useRouter } from "vue-router";
 import axios from "axios";
@@ -266,13 +267,6 @@ import axios from "axios";
 const $q = useQuasar();
 const store = useUserStore();
 const router = useRouter();
-
-const urlPython = ref("");
-if (process.env.DEV) {
-  urlPython.value = "http://localhost:8000";
-} else {
-  urlPython.value = "https://omh-python.herokuapp.com";
-}
 
 $q.dark.set(true);
 
@@ -326,25 +320,34 @@ const getOTP = async () => {
       mobile: radioSMSLabel.value,
     };
     button_disabled.value = true;
-    // console.log(data);
-    await axios({
-      method: "post",
-      url: `${urlPython.value}/generate_otp`,
-      data: data,
-    }).then(
-      (response) => {
-        console.log(response.data);
-        otp_received.value = response.data.otp;
-        otp_time.value = 60 * 20;
-        timer;
-        $q.notify({
-          color: "positive",
-          message: "OTP sent successfully",
-          position: "top",
-          icon: "check_circle",
-        });
-      },
-      (error) => {
+
+    await pythonService
+      .generateOTP(data)
+      .then(
+        (response) => {
+          otp_received.value = response.data.otp;
+          otp_time.value = 60 * 20;
+          timer;
+          $q.notify({
+            color: "positive",
+            message: "OTP sent successfully",
+            position: "top",
+            icon: "check_circle",
+          });
+        },
+        (error) => {
+          console.error(error);
+          $q.notify({
+            color: "negative",
+            message: "Error in sending OTP",
+            position: "top",
+            icon: "report_problem",
+          });
+          button_disabled.value = false;
+          clearInterval(interval_call);
+        }
+      )
+      .catch((error) => {
         console.error(error);
         $q.notify({
           color: "negative",
@@ -354,11 +357,7 @@ const getOTP = async () => {
         });
         button_disabled.value = false;
         clearInterval(interval_call);
-        // loading.value = false;
-        // closeDialog();
-      }
-    );
-    // timer;
+      });
   } catch (error) {
     console.error(error);
   }

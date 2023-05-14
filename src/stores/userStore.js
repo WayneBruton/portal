@@ -17,6 +17,8 @@ export const useUserStore = defineStore("userStore", {
     files: [],
     loanAgreements: [],
     stock_market: [],
+    display_data: {},
+    summary_data: "",
   }),
   persist: true,
   // getters: {
