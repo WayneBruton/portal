@@ -1,7 +1,6 @@
 <template>
   <q-page>
     <std-header />
-
     <br /><br />
     <div class="row" v-if="screenwidth > 1023">
       <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1"></div>
@@ -131,8 +130,8 @@
                     <q-btn
                       v-if="
                         props.row.amount_invested !== 'CLOSED' &&
-                        props.row.investor_acc_number === 'ZALM01' &&
-                        props.row.opportunity_code === 'HVC202'
+                        props.row.days !== null &&
+                        props.row.days < 8
                       "
                       style="margin-left: 5px; background: red; color: white"
                       no-caps
@@ -273,9 +272,7 @@
             <div>
               <q-btn
                 v-if="
-                  item.amount_invested !== 'CLOSED' &&
-                  item.investor_acc_number === 'ZALM01' &&
-                  item.opportunity_code === 'HVC202'
+                  item.amount_invested !== 'CLOSED' && item.days !== null && item.days < 8
                 "
                 style="
                   margin: 5px 5px;
@@ -323,7 +320,7 @@
         <q-card-section>
           <p>
             With reference to the Investment specified below, the next investment cycle is
-            in the planning phase, and it is necessary to determine what your intention
+            in the planning phase and it is necessary to determine what your intention
             might be upon exit of this investment. We will be in further communication
             closer to the exit date for your final decision.
           </p>
@@ -350,10 +347,10 @@
             <div style="display: flex">
               <div style="width: 30%; text-align: center">Amount Invested</div>
               <div style="width: 30%; text-align: center">
-                Interest: {{ dayjs(new Date()).format("YYYY-MM-DD") }}
+                Interest: {{ dayjs(new Date()).format("DD MMM YY") }}
               </div>
               <div style="width: 30%; text-align: center">
-                Balance: {{ dayjs(new Date()).format("YYYY-MM-DD") }}
+                Balance: {{ dayjs(new Date()).format("DD MMM YY") }}
               </div>
             </div>
             <div style="display: flex">
@@ -377,8 +374,8 @@
 
             <p>
               <strong>Disclaimer:</strong> The following is applicable to the next
-              available investment phase. Please note these figures are based on
-              {{ dayjs(new Date()).format("YYYY-MM-DD") }} and will change depending on
+              available investment phase. Please note these figures are based as at
+              {{ dayjs(new Date()).format("DD-MM-YYYY") }} and will change depending on
               the actual transfer date.
             </p>
             <p>
@@ -387,7 +384,7 @@
               to change and should this occur, Opportunity will communicate this to you.
             </p>
             <ol>
-              <li>Investments of R 100 000 – R 499 000 @14% p.a</li>
+              <li>Investments of R 100 000 – R 499 000 @ 14% p.a</li>
               <li>Investments of R 500 000 – R 999 000 @ 16% p.a</li>
               <li>Investments of R 1 000 000 upwards @ 18% p.a</li>
             </ol>
@@ -450,7 +447,7 @@
                     debounce="500"
                     @update:model-value="updateFloat_investment"
                     :disable="!investmentExit.partial_exit"
-                    hint="Enter the amount you would like to rollover"
+                    hint="Enter rollover amount"
                   />
                   <QCurrencyInput
                     style="margin-left: 25px"
@@ -831,8 +828,33 @@ const exitInvestment = (e) => {
   fullWidth.value = true;
 };
 
-const submitExit = () => {
-  console.log(investmentExit.value);
+const submitExit = async () => {
+  // console.log(investmentExit.value);
+  await pythonService
+    .investmendEnding(investmentExit.value)
+    .then((res) => {
+      // console.log(res.data);
+      // notification that notification has been sent
+      if (res.data.message === "Email sent successfully") {
+        $q.notify({
+          color: "positive",
+          message: "Investment Ending Notification has been sent",
+          position: "top",
+          icon: "check_circle",
+        });
+      } else {
+        $q.notify({
+          color: "negative",
+          message:
+            "Investment Ending Notification has not been sent, please try again later",
+          position: "top",
+          icon: "check_circle",
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 const updateFloat_investment = () => {
@@ -853,6 +875,8 @@ const viewStatement = async (row) => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
+
+    // console.log(response.data);
 
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {

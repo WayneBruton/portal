@@ -73,7 +73,7 @@
     <br /><br />
     <div class="row">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
-      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
+      <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 summaryDataMain">
         <q-card
           class="my-card text-white my-card-header"
           style="height: 100%; width: 100%; border: 1px solid #e7d4a0"
@@ -476,14 +476,12 @@ $q.dark.set(true);
 }
 
 .myCardDetail {
-  margin: 15px 15px;
-
-  /* background: #3c3c3c; */
-  padding: 10px;
+  margin-top: 5px;
 }
 
 .summaryDataBtns {
-  margin: 12px 2px;
+  margin: 5px 2px;
+  /* margin-top: 5px; */
 }
 
 .summaryDataChild {
@@ -498,6 +496,8 @@ $q.dark.set(true);
 @media (max-width: 1023px) {
   .summaryDataMain {
     text-align: center;
+    width: 95vw;
+    margin: 0 0;
   }
 
   .myCardDetail {

@@ -45,12 +45,12 @@
               :key="index"
               style="
                 margin: 10px 0px;
-                background: #3c3c3c;
+                background: #1d1c1c;
                 padding: 00px;
                 border: 1px solid #e7d4a0;
               "
             >
-              <br />
+              <!-- <br /> -->
               <q-card-section>
                 <div class="text-h5">{{ dev.development }}</div>
               </q-card-section>
@@ -125,13 +125,13 @@ store.investor_acc_number = "";
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
   if (str.length > 12) {
-    str.splice(12, 0, ",");
+    str.splice(12, 0, " ");
   }
   if (str.length > 9) {
-    str.splice(9, 0, ",");
+    str.splice(9, 0, " ");
   }
   if (str.length > 6) {
-    str.splice(6, 0, ",");
+    str.splice(6, 0, " ");
   }
   // if (str.length > 3) {
   //   str.splice(3, 0, ",");
