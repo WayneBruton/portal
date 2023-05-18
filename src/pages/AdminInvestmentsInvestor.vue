@@ -562,7 +562,7 @@ const display_data = ref({
   labels: [],
   datasets: [
     {
-      label: "Annualised Interest Earned",
+      label: "Ave p.a return",
       data: [],
       backgroundColor: ["rgba(255, 26, 104, 0.4)"],
       borderColor: ["rgba(255, 26, 104, 1)"],
@@ -572,7 +572,7 @@ const display_data = ref({
       },
     },
     {
-      label: "Return on Investment",
+      label: "ROI",
       data: [],
       backgroundColor: ["rgba(54, 162, 235, 0.4)"],
       borderColor: ["rgba(54, 162, 235, 1)"],
@@ -594,6 +594,10 @@ const options = ref({
       font: {
         size: 16,
         bold: true,
+      },
+      padding: {
+        top: 10,
+        bottom: 60,
       },
     },
     legend: {
@@ -930,13 +934,13 @@ const get_info = async () => {
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
   if (str.length > 12) {
-    str.splice(12, 0, ",");
+    str.splice(12, 0, " ");
   }
   if (str.length > 9) {
-    str.splice(9, 0, ",");
+    str.splice(9, 0, " ");
   }
   if (str.length > 6) {
-    str.splice(6, 0, ",");
+    str.splice(6, 0, " ");
   }
   str.reverse().unshift("R ");
   str = str.join("");

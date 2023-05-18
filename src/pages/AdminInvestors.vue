@@ -5,90 +5,90 @@
     <div class="row">
       <div class="col-1 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-10 col-md-10 col-lg-10 col-xl-10">
-        <q-card class="my-card text-white">
-          <q-card-section>
-            <q-table
-              class="my-sticky-header-table"
-              title="Investors"
-              :rows="rows"
-              :columns="columns"
-              :filter="filter"
-              row-key="name"
-              :pagination="initialPagination"
-              style="color: lightgrey; font-size: 18px"
-              wrap-cells
+        <!-- <q-card class="my-card text-white"> -->
+        <!-- <q-card-section> -->
+        <q-table
+          class="my-sticky-header-table"
+          title="Investors"
+          :rows="rows"
+          :columns="columns"
+          :filter="filter"
+          row-key="name"
+          :pagination="initialPagination"
+          style="color: lightgrey; font-size: 18px; margin: 10px 10px"
+          wrap-cells
+        >
+          <template v-slot:top-right>
+            <q-input
+              class="mySearch"
+              :dark="false"
+              borderless
+              dense
+              debounce="300"
+              v-model="filter"
+              placeholder="Search"
+              clearable
             >
-              <template v-slot:top-right>
-                <q-input
-                  class="mySearch"
-                  :dark="false"
-                  borderless
-                  dense
-                  debounce="300"
-                  v-model="filter"
-                  placeholder="Search"
-                  clearable
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td key="investor_acc_number" :props="props">
+                {{ props.row.investor_acc_number }}
+              </q-td>
+              <q-td key="investor_name" :props="props">
+                {{ props.row.investor_name }}
+              </q-td>
+              <q-td key="investor_surname" :props="props">
+                {{ props.row.investor_surname }}
+              </q-td>
+              <q-td key="investor_email" :props="props">
+                {{ props.row.investor_email }}
+              </q-td>
+              <q-td key="actions" :props="props">
+                <!-- style="margin-left: 5px; background: #5a6268; color: white" -->
+                <q-btn
+                  style="margin-left: 5px; background: #5a6268; color: white"
+                  icon="remove_red_eye"
+                  no-caps
+                  :id="props.row._id"
+                  @click="goToInvestor(props.row.investor_acc_number)"
+                  size="sm"
+                  >Investments</q-btn
                 >
-                  <template v-slot:append>
-                    <q-icon name="search" />
-                  </template>
-                </q-input>
-              </template>
-              <template v-slot:body="props">
-                <q-tr :props="props">
-                  <q-td key="investor_acc_number" :props="props">
-                    {{ props.row.investor_acc_number }}
-                  </q-td>
-                  <q-td key="investor_name" :props="props">
-                    {{ props.row.investor_name }}
-                  </q-td>
-                  <q-td key="investor_surname" :props="props">
-                    {{ props.row.investor_surname }}
-                  </q-td>
-                  <q-td key="investor_email" :props="props">
-                    {{ props.row.investor_email }}
-                  </q-td>
-                  <q-td key="actions" :props="props">
-                    <q-btn
-                      v-if="props.row.needInvite"
-                      style="
-                        border: 1px solid white;
-                        background: radial-gradient(circle, #dec57c 0%, #ba852a 100%);
-                        color: white;
-                      "
-                      icon="mail"
-                      dense
-                      no-caps
-                      :id="props.row._id"
-                      @click="invite(props.row)"
-                      size="sm"
-                      >Invite</q-btn
-                    >
-                    <!-- style="margin-left: 5px; background: #5a6268; color: white" -->
-                    <q-btn
-                      style="margin-left: 5px; background: #5a6268; color: white"
-                      icon="remove_red_eye"
-                      no-caps
-                      :id="props.row._id"
-                      @click="goToInvestor(props.row.investor_acc_number)"
-                      size="sm"
-                      >Investments</q-btn
-                    >
-                    <q-btn
-                      style="margin-left: 5px; background: #333333; color: white"
-                      icon="remove_red_eye"
-                      no-caps
-                      :id="props.row._id"
-                      @click="investorUserAccounts(props.row)"
-                      size="sm"
-                      >Investor View</q-btn
-                    >
-                  </q-td>
-                </q-tr>
-              </template>
-            </q-table>
-          </q-card-section>
-        </q-card>
+                <q-btn
+                  style="margin-left: 5px; background: #333333; color: white"
+                  icon="remove_red_eye"
+                  no-caps
+                  :id="props.row._id"
+                  @click="investorUserAccounts(props.row)"
+                  size="sm"
+                  >Investor View</q-btn
+                >
+                <q-btn
+                  v-if="props.row.needInvite"
+                  style="
+                    border: 1px solid white;
+                    background: radial-gradient(circle, #dec57c 0%, #ba852a 100%);
+                    color: white;
+                  "
+                  icon="mail"
+                  dense
+                  no-caps
+                  :id="props.row._id"
+                  @click="invite(props.row)"
+                  size="sm"
+                  >Invite</q-btn
+                >
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+        <!-- </q-card-section> -->
+        <!-- </q-card> -->
       </div>
       <div class="col-1 col-md-1 col-lg-1 col-xl-1"></div>
     </div>
@@ -257,13 +257,13 @@ const invite = async (e) => {
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
   if (str.length > 12) {
-    str.splice(12, 0, ",");
+    str.splice(12, 0, " ");
   }
   if (str.length > 9) {
-    str.splice(9, 0, ",");
+    str.splice(9, 0, " ");
   }
   if (str.length > 6) {
-    str.splice(6, 0, ",");
+    str.splice(6, 0, " ");
   }
   str.reverse().unshift("R ");
   str = str.join("");

@@ -151,13 +151,13 @@ const get_info = async () => {
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
   if (str.length > 12) {
-    str.splice(12, 0, ",");
+    str.splice(12, 0, " ");
   }
   if (str.length > 9) {
-    str.splice(9, 0, ",");
+    str.splice(9, 0, " ");
   }
   if (str.length > 6) {
-    str.splice(6, 0, ",");
+    str.splice(6, 0, " ");
   }
   str.reverse().unshift("R ");
   str = str.join("");

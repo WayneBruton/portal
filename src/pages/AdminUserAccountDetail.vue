@@ -1,7 +1,6 @@
 <template>
   <q-page>
     <std-header />
-
     <br /><br />
     <div class="row">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
@@ -64,58 +63,65 @@
     <div class="row">
       <div class="col-1"></div>
       <div class="col">
-        <q-card class="my-card text-white" style="margin: 10px 10px; padding: 10px">
+        <!-- <q-card class="my-card text-white" style="margin: 10px 10px; padding: 10px"> -->
+        <!-- <q-card-section class="q-pt-none"> -->
+        <q-card
+          class="my-card text-white"
+          v-for="(dev, index) in development_data"
+          :key="index"
+          style="
+            margin: 10px 0px;
+            border: 1px solid #e7d4a0;
+            margin-left: 10px;
+            margin-right: 10px;
+          "
+        >
+          <br />
+          <!-- <q-card-section> -->
+          <div class="text-h6" style="margin-left: 25px">
+            Account: {{ dev.investment_name }}
+          </div>
+          <!-- </q-card-section> -->
           <q-card-section class="q-pt-none">
-            <q-card
-              class="my-card text-white"
-              v-for="(dev, index) in development_data"
-              :key="index"
-              style="margin: 10px 1px; border: 1px solid #e7d4a0"
-            >
-              <br />
-              <q-card-section>
-                <div class="text-h6">Account: {{ dev.investment_name }}</div>
-              </q-card-section>
-              <q-card-section class="q-pt-none">
-                <div class="row">
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-first">
-                    <div class="summaryDetail">Investment Date</div>
-                  </div>
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-second">
-                    <div class="summaryDetail">Capital Amount</div>
-                  </div>
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-third">
-                    <div class="summaryDetail">Interest</div>
-                  </div>
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-fourth">
-                    <div class="summaryDetail">Balance</div>
-                  </div>
+            <div class="row">
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-first">
+                <div class="summaryDetail">Investment Date</div>
+              </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-second">
+                <div class="summaryDetail">Capital Amount</div>
+              </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-third">
+                <div class="summaryDetail">Interest</div>
+              </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-fourth">
+                <div class="summaryDetail">Balance</div>
+              </div>
 
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-fifth">
-                    <div class="summaryDetail">
-                      {{ dev.deposit_date }}
-                    </div>
-                  </div>
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-sixth">
-                    <div class="summaryDetail">
-                      {{ dev.capital_this }}
-                    </div>
-                  </div>
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-seventh">
-                    <div class="summaryDetail">
-                      {{ dev.interest }}
-                    </div>
-                  </div>
-                  <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-eighth">
-                    <div class="summaryDetail">
-                      {{ dev.current_value }}
-                    </div>
-                  </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-fifth">
+                <div class="summaryDetail">
+                  {{ dev.deposit_date }}
                 </div>
-              </q-card-section>
-            </q-card>
+              </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-sixth">
+                <div class="summaryDetail">
+                  {{ dev.capital_this }}
+                </div>
+              </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-seventh">
+                <div class="summaryDetail">
+                  {{ dev.interest }}
+                </div>
+              </div>
+              <div class="col-12 col-md-3 col-lg-3 col-xl-3 col-eighth">
+                <div class="summaryDetail">
+                  {{ dev.current_value }}
+                </div>
+              </div>
+            </div>
           </q-card-section>
         </q-card>
+        <!-- </q-card-section> -->
+        <!-- </q-card> -->
       </div>
       <div class="col-1"></div>
     </div>
@@ -250,13 +256,13 @@ const scrollToSection = (id) => {
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
   if (str.length > 12) {
-    str.splice(12, 0, ",");
+    str.splice(12, 0, " ");
   }
   if (str.length > 9) {
-    str.splice(9, 0, ",");
+    str.splice(9, 0, " ");
   }
   if (str.length > 6) {
-    str.splice(6, 0, ",");
+    str.splice(6, 0, " ");
   }
   // if (str.length > 3) {
   //   str.splice(3, 0, ",");

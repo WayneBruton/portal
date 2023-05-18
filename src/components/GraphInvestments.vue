@@ -19,11 +19,12 @@ const display_data = ref({});
 
 onMounted(() => {
   display_data.value = store.display_data;
-  if (store.summary_data === "") {
-    options.value.plugins.title.text = `Investment Summary - Closed Investments`;
-  } else {
-    options.value.plugins.title.text = `Investment Summary - ${store.summary_data}`;
-  }
+  options.value.plugins.title.text = `Investment Summary - Closed Investments`;
+  // if (store.summary_data === "") {
+  //   options.value.plugins.title.text = `Investment Summary - Closed Investments`;
+  // } else {
+  //   options.value.plugins.title.text = `Investment Summary - ${store.summary_data}`;
+  // }
   //   options.value.plugins.title.text = `Investment Summary - ${store.summary_data}`;
 });
 
@@ -37,6 +38,10 @@ const options = ref({
       font: {
         size: 16,
         bold: true,
+      },
+      padding: {
+        top: 10,
+        bottom: 60,
       },
     },
     legend: {
@@ -103,6 +108,11 @@ const options = ref({
           bold: true,
         },
       },
+    },
+  },
+  layout: {
+    padding: {
+      top: 30, // Adjust the top padding value as needed
     },
   },
 });

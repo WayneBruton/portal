@@ -175,6 +175,17 @@ const get_stock_data = async () => {
     const response = await pythonService
       .getStockMarketData()
       .then((response) => {
+        // console.log(response.data.stock_market);
+        // insert object at beginning of array
+        response.data.stock_market.unshift({
+          Description: "Market Figures courtesy of Yahoo Finance",
+          change: null,
+          color: "grey",
+          icon: "",
+          icon_color: "",
+          index: "",
+          price: "",
+        });
         stock_market.value = [];
         stock_market.value = response.data.stock_market;
         store.stock_market = response.data.stock_market;
@@ -236,13 +247,13 @@ const data_from_db = ref([]);
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
   if (str.length > 12) {
-    str.splice(12, 0, ",");
+    str.splice(12, 0, " ");
   }
   if (str.length > 9) {
-    str.splice(9, 0, ",");
+    str.splice(9, 0, " ");
   }
   if (str.length > 6) {
-    str.splice(6, 0, ",");
+    str.splice(6, 0, " ");
   }
   // if (str.length > 3) {
   //   str.splice(3, 0, ",");
@@ -479,9 +490,15 @@ $q.dark.set(true);
   margin-top: 5px;
 }
 
+.summaryDataMain {
+  /* text-align: center;
+  width: 95vw;
+  margin: 0 0; */
+}
+
 .summaryDataBtns {
   margin: 5px 2px;
-  /* margin-top: 5px; */
+  margin-top: 20px;
 }
 
 .summaryDataChild {

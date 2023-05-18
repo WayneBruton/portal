@@ -147,6 +147,7 @@
                 color="yellow"
               />
               <q-radio
+                v-if="radioSMSLabel !== 'SMS: '"
                 v-model="method"
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
@@ -303,6 +304,7 @@ const checkEmailAddress = async () => {
     radioEmailLabel.value = `Email: ${response.data.email}`;
     // radioSMSLabel.value = `SMS: COMING SOON`;
     radioSMSLabel.value = `SMS: ${response.data.mobile}`;
+    // console.log(response.data.mobile);
   }
 };
 
