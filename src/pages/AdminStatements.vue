@@ -3,6 +3,7 @@
     <std-header />
     <br /><br />
     <!-- <div class="row"> -->
+
     <div
       style="
         display: flex;
@@ -26,7 +27,7 @@
           dense
           no-caps
           size="s"
-          >Download Statement(Normal Format)</q-btn
+          >Download Statement</q-btn
         ></a
       >
       <a
@@ -35,6 +36,7 @@
         style="text-decoration: none; color: white; margin: 25px 0px"
       >
         <q-btn
+          v-if="store.role === 'ADMIN'"
           style="
             border: 1px solid white;
             background: radial-gradient(circle, #dec57c 0%, #ba852a 100%);
@@ -55,7 +57,12 @@
       <div class="col-1 col-md-1 col-lg-1 col-xl-1"></div>
 
       <div class="col-10 col-md-10 col-lg-10 col-xl-10">
-        <q-card class="my-card text-white">
+        <q-card
+          class="my-card text-white"
+          style="background: #121212"
+          flat
+          :bordered="false"
+        >
           <q-card-section>
             <q-table
               class="my-sticky-header-table"
@@ -117,6 +124,18 @@
                 </q-tr>
               </template>
             </q-table>
+          </q-card-section>
+          <q-card-section>
+            <p
+              class="text-center"
+              style="color: lightgrey; font-size: 18px margin: 20px 10px;"
+            >
+              Earning of interest: Interest calculations and accruals are reflected on the
+              Lender statements for informative purposes with interest on loans deemed
+              earned on exit or repayment date only. For the avoidance of any doubt, the
+              Lender shall not earn any Interest until Repayment Date and the Interest
+              shall only vest in the Lender on the Repayment Date.
+            </p>
           </q-card-section>
         </q-card>
       </div>
@@ -253,7 +272,7 @@ const initialPagination = {
   sortBy: "desc",
   descending: false,
   page: 1,
-  rowsPerPage: 30, // 0 means show all rows
+  rowsPerPage: 0, // 0 means show all rows
   // rowsNumber: xx if getting data from a server
 };
 
@@ -392,7 +411,7 @@ const convertToString = (factor) => {
     str.splice(6, 0, " ");
   }
   str.reverse();
-  // unshift("R ");
+  // str.unshift("R ");
   str = str.join("");
   return str;
 };

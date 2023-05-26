@@ -2,10 +2,19 @@
   <q-page>
     <std-header />
     <br /><br />
-    <div class="row" v-if="screenwidth > 1023">
+
+    <div class="row" v-if="screenwidth >= 1023">
       <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1"></div>
-      <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10">
-        <q-card class="my-card text-white">
+      <div
+        class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10"
+        style="background: #121212"
+      >
+        <q-card
+          class="my-card text-white"
+          flat
+          :bordered="false"
+          style="background: #121212"
+        >
           <q-card-section>
             <q-table
               class="my-sticky-header-table"
@@ -955,6 +964,12 @@ $q.dark.set(true);
 </script>
 
 <style scoped>
+/* .my-card {
+  background-color: transparent !important;
+  color: lightgrey !important;
+  border: none;
+} */
+
 .mySearch {
   width: 200px;
   background: white;

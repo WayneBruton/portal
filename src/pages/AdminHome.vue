@@ -2,6 +2,7 @@
   <q-page>
     <std-header />
     <br /><br />
+
     <div class="row">
       <div class="col-1"></div>
       <div class="col">
@@ -177,7 +178,6 @@ const get_info = async () => {
 
 // onBeforeMount(() => {
 get_info();
-// });
 
 $q.dark.set(true);
 </script>

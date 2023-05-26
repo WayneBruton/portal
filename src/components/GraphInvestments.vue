@@ -19,6 +19,7 @@ const display_data = ref({});
 
 onMounted(() => {
   display_data.value = store.display_data;
+  console.log(display_data.value);
   options.value.plugins.title.text = `Investment Summary - Closed Investments`;
   // if (store.summary_data === "") {
   //   options.value.plugins.title.text = `Investment Summary - Closed Investments`;
@@ -88,6 +89,7 @@ const options = ref({
 
   scales: {
     x: {
+      offset: true,
       title: {
         display: true,
         text: "Investment Details",

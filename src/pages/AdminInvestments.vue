@@ -6,7 +6,12 @@
     <div class="row">
       <div class="col-1 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-10 col-md-10 col-lg-10 col-xl-10">
-        <q-card class="my-card text-white">
+        <q-card
+          class="my-card text-white"
+          style="background: #121212"
+          flat
+          :bordered="false"
+        >
           <q-card-section>
             <q-table
               class="my-sticky-header-table"

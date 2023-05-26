@@ -96,6 +96,7 @@
               <div class="col-1 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
               <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7 summaryDataMain">
                 <q-btn
+                  v-if="!only_closed"
                   class="summaryDataBtns"
                   no-caps
                   style="
@@ -166,6 +167,8 @@ store.display_data = {};
 const url = ref(
   process.env.DEV ? "http://localhost:3000" : "https://opportunity.eu-4.evennode.com"
 );
+
+console.log(store.role);
 
 const get_stock_data = async () => {
   try {
@@ -301,6 +304,8 @@ const getInvestorDocs = async () => {
 
 const closed_investments = ref([]);
 
+const only_closed = ref(false);
+
 onBeforeMount(() => {
   getInvestorDocs();
 });
@@ -308,6 +313,7 @@ onBeforeMount(() => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
+    console.log(response.data);
 
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {
@@ -335,18 +341,40 @@ const get_info = async () => {
       return el.amount_invested === "CLOSED";
     });
 
-    response.data = response.data.filter((el) => {
+    let only_closed = response.data.filter((el) => {
       return el.amount_invested !== "CLOSED";
     });
 
+    if (only_closed.length === 0) {
+      only_closed.value = true;
+    } else {
+      only_closed.value = false;
+    }
+
+    // data_from_db.value = response.data.filter((el) => {
+    //   return el.amount_invested == "CLOSED";
+    // });
+
     data_from_db.value = response.data;
 
+    // console.log("XXX", data_from_db.value);
+
     capital.value = data_from_db.value.reduce((acc, el) => {
-      return acc + parseFloat(el.amount_invested);
+      if (el.amount_invested === "CLOSED") {
+        acc = acc;
+      } else {
+        acc = acc + parseFloat(el.amount_invested);
+      }
+      return acc;
     }, 0);
 
     total.value = data_from_db.value.reduce((acc, el) => {
-      return acc + parseFloat(el.balance);
+      if (el.amount_invested === "CLOSED") {
+        acc = acc;
+      } else {
+        acc = acc + parseFloat(el.balance);
+      }
+      return acc;
     }, 0);
 
     interest.value = total.value - capital.value;
@@ -356,11 +384,14 @@ const get_info = async () => {
     interest.value = convertToString(interest.value);
 
     let dev = [];
+    console.log(data_from_db.value);
     data_from_db.value.forEach((el) => {
       dev.push(el.investor_acc_number);
     });
 
     dev = [...new Set(dev)];
+
+    console.log(dev);
 
     development_data.value = [];
 
@@ -402,6 +433,35 @@ const display_data = ref({
         display: true,
       },
     },
+
+    {
+      label: "Total Ave p.a return",
+      data: [],
+      type: "line",
+      pointRadius: 0,
+      borderSkip: false,
+      borderDash: [5, 5],
+      fill: true,
+      borderColor: ["rgba(212,175,55, 1)"],
+      // backgroundColor: ["rgba(212,175,55, 1)"], // Adjust the color as desired
+      borderWidth: 3,
+      datalabels: {
+        display: false,
+      },
+    },
+    {
+      label: "Total ROI",
+      data: [],
+      type: "line",
+      pointRadius: 0,
+      borderDash: [5, 5],
+      fill: true,
+      borderColor: ["rgba(211,211,211, 1)"], // Adjust the color as desired
+      borderWidth: 3,
+      datalabels: {
+        display: false,
+      },
+    },
   ],
 });
 
@@ -425,20 +485,52 @@ const get_chart_info = async () => {
   let response = await pythonService
     .getChartData(data)
     .then((response) => {
+      console.log(response.data.final_chart_data);
       chart_data.value = response.data.final_chart_data;
+
+      let ave_return = (
+        chart_data.value.reduce((acc, el) => {
+          acc = acc + el.annualised_interest_rate;
+          return acc;
+        }, 0) / chart_data.value.length
+      ).toFixed(1);
+
+      let ave_roi = (
+        chart_data.value.reduce((acc, el) => {
+          acc = acc + el.return_on_investment;
+          return acc;
+        }, 0) / chart_data.value.length
+      ).toFixed(1);
+
+      // console.log(ave_return);
+
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {
         el.data = [];
       });
 
-      chart_data.value.forEach((el) => {
+      chart_data.value.forEach((el, index, arr) => {
         display_data.value.labels.push(
           `${el.opportunity_code} - Inv No: ${el.investment_number}`
         );
         display_data.value.datasets[0].data.push(el.annualised_interest_rate);
 
         display_data.value.datasets[1].data.push(el.return_on_investment);
+
+        // if (index === arr.length - 1) {
+        display_data.value.datasets[2].data.push(ave_return);
+        display_data.value.datasets[3].data.push(ave_roi);
+        // }
+        // else {
+        //   display_data.value.datasets[2].data.push(null);
+        //   display_data.value.datasets[3].data.push(null);
+        // }
       });
+
+      if (chart_data.value.length == 1) {
+        display_data.value.datasets.splice(-2);
+        // display_data.value.datasets[3].data.push(ave_roi);
+      }
       store.display_data = display_data.value;
       showGraph.value = true;
     })

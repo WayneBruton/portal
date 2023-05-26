@@ -2,6 +2,7 @@
   <q-page>
     <std-header />
     <br /><br />
+
     <div class="row">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
@@ -44,9 +45,9 @@
           @click="viewInvestmentsList"
           >View Full Investment List</q-btn
         >
-
+        <!-- v-if="closed_investments.length > 0" -->
         <q-btn
-          v-if="closed_investments.length > 0"
+          v-if="showGraph"
           flat
           style="margin-left: 5px; background: transparant; color: green"
           icon="insert_chart_outlined"
@@ -125,7 +126,7 @@
       </div>
       <div class="col-1"></div>
     </div>
-    <div class="row" v-if="development_data.length > 0">
+    <div class="row" v-if="closed_investments.length > 0">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
       <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
         <!-- <div>
@@ -211,6 +212,7 @@ const showGraph = ref(false);
 const get_chart_info = async () => {
   store.display_data = {};
   store.summary_data = "";
+  console.log(closed_investments.value);
   if (closed_investments.value.length === 0) {
     return;
   }
@@ -221,6 +223,7 @@ const get_chart_info = async () => {
   await pythonService
     .getChartData(data)
     .then((response) => {
+      // console.log(response.data);
       chart_data.value = response.data.final_chart_data;
 
       // options.value.plugins.title.text = `Investment Summary - ${summary_data.value}`;
@@ -239,6 +242,8 @@ const get_chart_info = async () => {
         display_data.value.datasets[1].data.push(el.return_on_investment);
       });
       store.display_data = display_data.value;
+      console.log(store.display_data);
+      console.log(development_data.value);
       showGraph.value = true;
     })
     .catch((error) => {
@@ -319,19 +324,28 @@ const get_info = async () => {
       return el.investor_acc_number === route.params.id;
     });
 
+    // console.log(response.data);
     response.data.forEach((el) => {
       if (el.amount_invested === "CLOSED") {
         closed_investments.value.push(el);
       }
     });
 
-    response.data = response.data.filter((el) => {
+    data_from_db.value = response.data.filter((el) => {
       return el.amount_invested !== "CLOSED";
     });
 
-    data_from_db.value = response.data;
+    // data_from_db.value = response.data;
 
-    summary_data.value = data_from_db.value[0].investment_name;
+    console.log(data_from_db.value);
+
+    if (data_from_db.value.length === 0) {
+      summary_data.value = `No Open Investments`;
+    } else {
+      summary_data.value = data_from_db.value[0].investment_name;
+    }
+
+    // console.log(data_from_db.value[0].investment_name);
 
     capital.value = data_from_db.value.reduce((acc, el) => {
       return acc + parseFloat(el.amount_invested);
@@ -353,6 +367,8 @@ const get_info = async () => {
     });
 
     dev = [...new Set(dev)];
+
+    console.log("DEV", dev);
 
     development_data.value = [];
 
@@ -412,6 +428,7 @@ const get_info = async () => {
         deposit_date: dayjs(data_filtered[0].deposit_date).format("DD MMM YYYY"),
       };
       development_data.value.push(insert);
+      console.log("XXXXX", development_data.value);
     });
   } catch (error) {
     console.error(error);
@@ -420,6 +437,7 @@ const get_info = async () => {
 
 onBeforeMount(() => {
   get_info().then(() => {
+    console.log(closed_investments.value);
     if (closed_investments.value.length > 0) {
       get_chart_info();
     }

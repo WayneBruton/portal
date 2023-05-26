@@ -45,6 +45,9 @@
               <q-td key="investor_surname" :props="props">
                 {{ props.row.investor_surname }}
               </q-td>
+              <q-td key="investment_name" :props="props">
+                {{ props.row.investment_name }}
+              </q-td>
               <q-td key="investor_email" :props="props">
                 {{ props.row.investor_email }}
               </q-td>
@@ -74,6 +77,7 @@
                     border: 1px solid white;
                     background: radial-gradient(circle, #dec57c 0%, #ba852a 100%);
                     color: white;
+                    margin-left: 5px;
                   "
                   icon="mail"
                   dense
@@ -96,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, watchEffect } from "vue";
 import { useQuasar } from "quasar";
 import nodeService from "../services/nodeService";
 import pythonService from "../services/pythonService";
@@ -111,6 +115,14 @@ const store = useUserStore();
 const router = useRouter();
 
 const filter = ref("");
+
+filter.value = store.filter;
+
+watchEffect(() => {
+  // if (filter.value) {
+  store.filter = filter.value;
+  // }
+});
 
 verifyUser();
 
@@ -130,6 +142,7 @@ const columns = [
     field: "investor_name",
 
     sortable: true,
+    style: "width: 15%",
   },
   {
     name: "investor_surname",
@@ -137,6 +150,15 @@ const columns = [
     field: "investor_surname",
     align: "left",
     sortable: true,
+    style: "width: 15%",
+  },
+  {
+    name: "investment_name",
+    label: "Investment Name",
+    field: "investment_name",
+    align: "left",
+    sortable: true,
+    // style: "width: 15%",
   },
   {
     name: "investor_email",
@@ -201,6 +223,7 @@ const get_info = async () => {
     });
 
     rows.value = response.data;
+    // console.log("ROWS", rows.value);
   } catch (error) {
     console.error(error);
   }

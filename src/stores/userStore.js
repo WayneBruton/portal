@@ -19,6 +19,7 @@ export const useUserStore = defineStore("userStore", {
     stock_market: [],
     display_data: {},
     summary_data: "",
+    filter: "",
   }),
   persist: true,
   // getters: {
