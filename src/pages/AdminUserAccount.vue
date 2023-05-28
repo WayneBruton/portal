@@ -123,7 +123,7 @@
       </div>
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
     </div>
-    <div class="row" v-if="development_data.length == 1">
+    <div class="row" v-if="showGraph">
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
       <!-- v-if="closed_investments.length > 0 && store.display_data !== {}" -->
       <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10 q-pa-md q-gutter-md">
@@ -433,35 +433,6 @@ const display_data = ref({
         display: true,
       },
     },
-
-    {
-      label: "Total Ave p.a return",
-      data: [],
-      type: "line",
-      pointRadius: 0,
-      borderSkip: false,
-      borderDash: [5, 5],
-      fill: true,
-      borderColor: ["rgba(212,175,55, 1)"],
-      // backgroundColor: ["rgba(212,175,55, 1)"], // Adjust the color as desired
-      borderWidth: 3,
-      datalabels: {
-        display: false,
-      },
-    },
-    {
-      label: "Total ROI",
-      data: [],
-      type: "line",
-      pointRadius: 0,
-      borderDash: [5, 5],
-      fill: true,
-      borderColor: ["rgba(211,211,211, 1)"], // Adjust the color as desired
-      borderWidth: 3,
-      datalabels: {
-        display: false,
-      },
-    },
   ],
 });
 
@@ -488,19 +459,19 @@ const get_chart_info = async () => {
       console.log(response.data.final_chart_data);
       chart_data.value = response.data.final_chart_data;
 
-      let ave_return = (
-        chart_data.value.reduce((acc, el) => {
-          acc = acc + el.annualised_interest_rate;
-          return acc;
-        }, 0) / chart_data.value.length
-      ).toFixed(1);
+      // let ave_return = (
+      //   chart_data.value.reduce((acc, el) => {
+      //     acc = acc + el.annualised_interest_rate;
+      //     return acc;
+      //   }, 0) / chart_data.value.length
+      // ).toFixed(1);
 
-      let ave_roi = (
-        chart_data.value.reduce((acc, el) => {
-          acc = acc + el.return_on_investment;
-          return acc;
-        }, 0) / chart_data.value.length
-      ).toFixed(1);
+      // let ave_roi = (
+      //   chart_data.value.reduce((acc, el) => {
+      //     acc = acc + el.return_on_investment;
+      //     return acc;
+      //   }, 0) / chart_data.value.length
+      // ).toFixed(1);
 
       // console.log(ave_return);
 
@@ -518,8 +489,8 @@ const get_chart_info = async () => {
         display_data.value.datasets[1].data.push(el.return_on_investment);
 
         // if (index === arr.length - 1) {
-        display_data.value.datasets[2].data.push(ave_return);
-        display_data.value.datasets[3].data.push(ave_roi);
+        // display_data.value.datasets[2].data.push(ave_return);
+        // display_data.value.datasets[3].data.push(ave_roi);
         // }
         // else {
         //   display_data.value.datasets[2].data.push(null);
@@ -527,10 +498,10 @@ const get_chart_info = async () => {
         // }
       });
 
-      if (chart_data.value.length == 1) {
-        display_data.value.datasets.splice(-2);
-        // display_data.value.datasets[3].data.push(ave_roi);
-      }
+      // if (chart_data.value.length == 1) {
+      //   display_data.value.datasets.splice(-2);
+      //   // display_data.value.datasets[3].data.push(ave_roi);
+      // }
       store.display_data = display_data.value;
       showGraph.value = true;
     })
