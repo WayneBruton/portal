@@ -11,7 +11,10 @@
           style="height: 100%; border: 1px solid #e7d4a0"
         >
           <q-card-section>
-            <div class="text-h6 row" style="text-align: center">
+            <div
+              class="row"
+              style="text-align: center; font-size: 120%; font-wight: bold"
+            >
               Investment Summary: {{ summary_data }}
             </div>
           </q-card-section>
@@ -34,31 +37,34 @@
     </div>
     <br />
     <div class="row">
-      <div class="col-3 col-sm-4 col-md-4 col-lg-4 col-xl-4"></div>
-      <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-        <q-btn color="grey" style="margin: 15px 2px; width: 250px" @click="backToDashoard"
+      <div class="col-0 col-sm-2 col-md-2 col-lg-2 col-xl-2"></div>
+      <div class="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+        <q-btn class="showButtons" color="grey" @click="backToDashoard"
           >Back to Dashboard</q-btn
         >
-        <q-btn
-          color="grey"
-          style="margin: 15px 2px; width: 250px"
-          @click="viewInvestmentsList"
+        <q-btn color="grey" class="showButtons" @click="viewInvestmentsList"
           >View Full Investment List</q-btn
         >
         <!-- v-if="closed_investments.length > 0" -->
         <q-btn
           v-if="showGraph"
-          flat
-          style="margin-left: 5px; background: transparant; color: green"
-          icon="insert_chart_outlined"
+          color="grey"
+          class="showButtons"
           no-caps
           size="s"
           @click="scrollToSection('section1')"
         >
+          Show Graph
+          <q-icon
+            name="insert_chart_outlined"
+            color="light-green-10"
+            size="m"
+            style="margin-left: 20px; text-align: right"
+          />
           <q-tooltip anchor="center right" self="center left">Show Chart</q-tooltip>
         </q-btn>
       </div>
-      <div class="col-0 col-sm-4 col-md-4 col-lg-4 col-xl-4"></div>
+      <div class="col-0 col-sm-2 col-md-2 col-lg-2 col-xl-2"></div>
     </div>
     <br />
     <div class="row">
@@ -79,7 +85,7 @@
         >
           <br />
           <!-- <q-card-section> -->
-          <div class="text-h6" style="margin-left: 25px">
+          <div style="font-size: 120%; font-wight: bold; margin-left: 25px">
             Account: {{ dev.investment_name }}
           </div>
           <!-- </q-card-section> -->
@@ -136,6 +142,15 @@
         <div>
           <GraphInvestments id="section1" :display_data="display_data" v-if="showGraph" />
         </div>
+        <br />
+        <hr />
+        <div>
+          <GraphInvestmentsSummary
+            id="section1"
+            :display_data="display_data2"
+            v-if="showSummaryGraph"
+          />
+        </div>
       </div>
 
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
@@ -152,6 +167,7 @@ import { useUserStore } from "../stores/userStore";
 import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
 import GraphInvestments from "../components/GraphInvestments.vue";
+import GraphInvestmentsSummary from "../components/GraphInvestmentsSummary.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -207,7 +223,34 @@ const display_data = ref({
   ],
 });
 
+const display_data2 = ref({
+  labels: [],
+  datasets: [
+    {
+      label: "Ave p.a return",
+      data: [],
+      backgroundColor: ["rgba(212,175,55, 0.4)"],
+      borderColor: ["rgba(212,175,55, 1)"],
+      borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
+    },
+    {
+      label: "ROI",
+      data: [],
+      backgroundColor: ["rgba(192,192,192, 0.4)"],
+      borderColor: ["rgba(192,192,192, 1)"],
+      borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
+    },
+  ],
+});
+
 const showGraph = ref(false);
+const showSummaryGraph = ref(false);
 
 const get_chart_info = async () => {
   store.display_data = {};
@@ -226,10 +269,28 @@ const get_chart_info = async () => {
       // console.log(response.data);
       chart_data.value = response.data.final_chart_data;
 
+      let ave_return = (
+        chart_data.value.reduce((acc, el) => {
+          acc = acc + el.annualised_interest_rate;
+          return acc;
+        }, 0) / chart_data.value.length
+      ).toFixed(1);
+
+      let ave_roi = (
+        chart_data.value.reduce((acc, el) => {
+          acc = acc + el.return_on_investment;
+          return acc;
+        }, 0) / chart_data.value.length
+      ).toFixed(1);
+
       // options.value.plugins.title.text = `Investment Summary - ${summary_data.value}`;
       store.summary_data = summary_data.value;
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {
+        el.data = [];
+      });
+      display_data2.value.labels = [];
+      display_data2.value.datasets.forEach((el) => {
         el.data = [];
       });
 
@@ -241,6 +302,17 @@ const get_chart_info = async () => {
 
         display_data.value.datasets[1].data.push(el.return_on_investment);
       });
+
+      if (chart_data.value.length > 1) {
+        display_data2.value.labels.push("Average");
+        display_data2.value.datasets[0].data.push(ave_return);
+        display_data2.value.datasets[1].data.push(ave_roi);
+        store.display_data2 = display_data2.value;
+        showSummaryGraph.value = true;
+      } else {
+        showSummaryGraph.value = false;
+      }
+
       store.display_data = display_data.value;
       console.log(store.display_data);
       console.log(development_data.value);
@@ -455,7 +527,7 @@ $q.dark.set(true);
 }
 
 .summaryDataChild {
-  background-color: #d6b674;
+  background-color: #cea662;
   border: 1px solid #e4cf95;
   font-size: 18px;
   font-weight: 500;
@@ -470,8 +542,18 @@ $q.dark.set(true);
   background: #444444;
   margin: 5px 10px;
 }
+.showButtons {
+  margin: 15px 1px;
+  width: 30%;
+}
 
 @media (max-width: 1023px) {
+  .showButtons {
+    margin: 5px 5px;
+    width: 95%;
+    align-content: center;
+  }
+
   .col-first {
     order: 1;
   }

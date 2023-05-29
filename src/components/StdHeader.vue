@@ -263,14 +263,14 @@ if (store.name !== "WayneAdmin" && store.name !== "Wayne" && store.name !== "Deb
 <style scoped>
 .menuBtn {
   width: 50%;
-  font-size: 120%;
+  font-size: 110%;
   /* font-weight: bold; */
   margin: 5px 12px;
   cursor: pointer;
 }
 .menuBtnIV {
   width: 50%;
-  font-size: 120%;
+  font-size: 110%;
   /* font-wei0ght: bold; */
   margin: 5px 12px;
   cursor: pointer;

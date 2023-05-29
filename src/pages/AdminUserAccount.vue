@@ -86,7 +86,9 @@
             >
               <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 summaryDataMain">
                 <div>
-                  <div class="text-h6">Account: {{ dev.investor_acc_number }}</div>
+                  <div style="font-size: 120%; font-wight: bold">
+                    Account: {{ dev.investor_acc_number }}
+                  </div>
                   <div style="font-size: 120%; font-wight: bold">
                     {{ dev.investment_name }}
                   </div>
@@ -134,6 +136,15 @@
         <div>
           <GraphInvestments id="section1" :display_data="display_data" v-if="showGraph" />
         </div>
+        <br />
+        <hr />
+        <div>
+          <GraphInvestmentsSummary
+            id="section1"
+            :display_data="display_data2"
+            v-if="showSummaryGraph"
+          />
+        </div>
       </div>
 
       <div class="col-0 col-sm-0 col-md-1 col-lg-1 col-xl-1"></div>
@@ -153,6 +164,7 @@ import verifyUser from "src/helperFiles/verifyUserToken";
 import MarqueeText from "vue-marquee-text-component";
 import axios from "axios";
 import GraphInvestments from "../components/GraphInvestments.vue";
+import GraphInvestmentsSummary from "../components/GraphInvestmentsSummary.vue";
 
 verifyUser();
 
@@ -436,9 +448,36 @@ const display_data = ref({
   ],
 });
 
+const display_data2 = ref({
+  labels: [],
+  datasets: [
+    {
+      label: "Ave p.a return",
+      data: [],
+      backgroundColor: ["rgba(212,175,55, 0.4)"],
+      borderColor: ["rgba(212,175,55, 1)"],
+      borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
+    },
+    {
+      label: "ROI",
+      data: [],
+      backgroundColor: ["rgba(192,192,192, 0.4)"],
+      borderColor: ["rgba(192,192,192, 1)"],
+      borderWidth: 1,
+      datalabels: {
+        display: true,
+      },
+    },
+  ],
+});
+
 const chart_data = ref([]);
 
 const showGraph = ref(false);
+const showSummaryGraph = ref(false);
 
 const get_chart_info = async () => {
   store.display_data = {};
@@ -459,24 +498,29 @@ const get_chart_info = async () => {
       console.log(response.data.final_chart_data);
       chart_data.value = response.data.final_chart_data;
 
-      // let ave_return = (
-      //   chart_data.value.reduce((acc, el) => {
-      //     acc = acc + el.annualised_interest_rate;
-      //     return acc;
-      //   }, 0) / chart_data.value.length
-      // ).toFixed(1);
+      let ave_return = (
+        chart_data.value.reduce((acc, el) => {
+          acc = acc + el.annualised_interest_rate;
+          return acc;
+        }, 0) / chart_data.value.length
+      ).toFixed(1);
 
-      // let ave_roi = (
-      //   chart_data.value.reduce((acc, el) => {
-      //     acc = acc + el.return_on_investment;
-      //     return acc;
-      //   }, 0) / chart_data.value.length
-      // ).toFixed(1);
+      let ave_roi = (
+        chart_data.value.reduce((acc, el) => {
+          acc = acc + el.return_on_investment;
+          return acc;
+        }, 0) / chart_data.value.length
+      ).toFixed(1);
 
       // console.log(ave_return);
+      // console.log(ave_roi);
 
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {
+        el.data = [];
+      });
+      display_data2.value.labels = [];
+      display_data2.value.datasets.forEach((el) => {
         el.data = [];
       });
 
@@ -487,21 +531,17 @@ const get_chart_info = async () => {
         display_data.value.datasets[0].data.push(el.annualised_interest_rate);
 
         display_data.value.datasets[1].data.push(el.return_on_investment);
-
-        // if (index === arr.length - 1) {
-        // display_data.value.datasets[2].data.push(ave_return);
-        // display_data.value.datasets[3].data.push(ave_roi);
-        // }
-        // else {
-        //   display_data.value.datasets[2].data.push(null);
-        //   display_data.value.datasets[3].data.push(null);
-        // }
       });
 
-      // if (chart_data.value.length == 1) {
-      //   display_data.value.datasets.splice(-2);
-      //   // display_data.value.datasets[3].data.push(ave_roi);
-      // }
+      if (chart_data.value.length > 1) {
+        display_data2.value.labels.push("Average");
+        display_data2.value.datasets[0].data.push(ave_return);
+        display_data2.value.datasets[1].data.push(ave_roi);
+        store.display_data2 = display_data2.value;
+        showSummaryGraph.value = true;
+      } else {
+        showSummaryGraph.value = false;
+      }
       store.display_data = display_data.value;
       showGraph.value = true;
     })
@@ -565,7 +605,9 @@ $q.dark.set(true);
 }
 
 .summaryDataChild {
-  background-color: #d6b674;
+  background-color: #cea662;
+  /* background-color: #d6b674; */
+  /* border: 1px solid #ba852a; */
   border: 1px solid #e4cf95;
   font-size: 18px;
   font-weight: 500;

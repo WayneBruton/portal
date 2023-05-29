@@ -18,6 +18,7 @@ export const useUserStore = defineStore("userStore", {
     loanAgreements: [],
     stock_market: [],
     display_data: {},
+    display_data2: {},
     summary_data: "",
     filter: "",
   }),

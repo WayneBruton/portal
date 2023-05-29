@@ -58,7 +58,7 @@
         >
           <!-- <br /> -->
           <q-card-section>
-            <div class="text-h5">{{ dev.development }}</div>
+            <div class="text-h6">{{ dev.development }}</div>
           </q-card-section>
           <q-card-section class="q-pt-none">
             <div class="row">
@@ -188,14 +188,14 @@ $q.dark.set(true);
   /* box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2); */
 }
 .summaryDataMain {
-  background-color: #887238;
-  border: 1px solid #cfac67;
+  background-color: #cea662;
+  border: 1px solid #e2c487;
   /* background-color: #d6b674;
   border: 1px solid #e4cf95; */
 }
 
 .summaryDataChild {
-  background-color: #d6b674;
+  background-color: #cea662;
   font-size: 15px;
   font-weight: 500;
   text-align: center;
