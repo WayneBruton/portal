@@ -704,7 +704,7 @@ const get_chart_info = async () => {
       });
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
     });
 };
 
@@ -842,11 +842,11 @@ const exitInvestment = (e) => {
 };
 
 const submitExit = async () => {
-  // console.log(investmentExit.value);
+ 
   await pythonService
     .investmendEnding(investmentExit.value)
     .then((res) => {
-      // console.log(res.data);
+ 
       // notification that notification has been sent
       if (res.data.message === "Email sent successfully") {
         $q.notify({
@@ -889,7 +889,7 @@ const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
 
-    // console.log(response.data);
+  
 
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {

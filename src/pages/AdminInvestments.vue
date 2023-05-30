@@ -271,10 +271,7 @@ const viewStatement = async (row) => {
   router.push({ name: "adminStatements", params: data });
 };
 
-// const invite = (e) => {
-//   console.log(e);
 
-// };
 
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();

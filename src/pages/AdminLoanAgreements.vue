@@ -120,7 +120,7 @@ const rows = ref([]);
 
 const filter = ref("");
 
-// console.log(store.loanAgreements);
+
 
 const loanAgreements = store.loanAgreements;
 
@@ -146,9 +146,9 @@ loanAgreements.forEach((el) => {
 
   // filename equals first 6 characters of filename + "-" + the remaining characterts
   fileName = fileName.slice(0, 6) + "-" + fileName.slice(6);
-  //   console.log(fileName);
+ 
   el.fileName = fileName;
-  // console.log(el);
+
   rows.value.push(el);
 });
 </script>

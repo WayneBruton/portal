@@ -1,15 +1,19 @@
 <template>
   <div>
-    <BarChart :chartData="display_data" :options="options" />
+    <BarChart :options="options" :chartData="display_data" />
+    <!-- <canvas id="myChart"></canvas> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, defineComponent } from "vue";
-import { BarChart } from "vue-chart-3";
 import { useUserStore } from "../stores/userStore";
+import { BarChart } from "vue-chart-3";
+// const { reactiveProp } = mixins
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+// import Chart from "chart.js/auto";
+
 Chart.register(ChartDataLabels);
 Chart.register(...registerables);
 
@@ -19,18 +23,67 @@ const display_data = ref({});
 
 onMounted(() => {
   display_data.value = store.display_data;
-  console.log(display_data.value);
+
   options.value.plugins.title.text = `Investment Summary - Closed Investments`;
-  // if (store.summary_data === "") {
-  //   options.value.plugins.title.text = `Investment Summary - Closed Investments`;
-  // } else {
-  //   options.value.plugins.title.text = `Investment Summary - ${store.summary_data}`;
-  // }
-  //   options.value.plugins.title.text = `Investment Summary - ${store.summary_data}`;
 });
 
 const options = ref({
   scales: {},
+  scales: {
+    xAxis: {
+      offset: true,
+      color: "green",
+      display: true,
+
+      title: {
+        display: true,
+        text: "Investment Details",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+      grid: {
+        display: true,
+        color: "white",
+        drawBorder: true, // Hide the border
+        drawOnChartArea: true, // Hide the gridlines within the chart area
+        drawTicks: true, // Hide the gridlines intersecting the tick marks
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+      ticks: {
+        color: "grey",
+      },
+    },
+    yAxis: {
+      offset: false,
+      position: "left",
+      color: "green",
+      display: true,
+
+      title: {
+        display: true,
+        text: "Interest Rate (%)",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+      grid: {
+        display: true,
+        color: "white",
+        drawBorder: true, // Hide the border
+        drawOnChartArea: true, // Hide the gridlines within the chart area
+        drawTicks: true, // Hide the gridlines intersecting the tick marks
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+      ticks: {
+        color: "grey",
+      },
+    },
+  },
   plugins: {
     title: {
       display: true,
@@ -86,32 +139,8 @@ const options = ref({
       },
     },
   },
+  // Show the x and y axes
 
-  scales: {
-    x: {
-      offset: true,
-      title: {
-        display: true,
-        text: "Investment Details",
-        color: "white",
-        font: {
-          size: 14,
-          bold: true,
-        },
-      },
-    },
-    y: {
-      title: {
-        display: true,
-        text: "Interest Rate (%)",
-        color: "white",
-        font: {
-          size: 14,
-          bold: true,
-        },
-      },
-    },
-  },
   layout: {
     padding: {
       top: 30, // Adjust the top padding value as needed

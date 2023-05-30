@@ -136,8 +136,8 @@
         <div>
           <GraphInvestments id="section1" :display_data="display_data" v-if="showGraph" />
         </div>
-        <br />
-        <hr />
+        <br v-if="showSummaryGraph" />
+        <hr v-if="showSummaryGraph" />
         <div>
           <GraphInvestmentsSummary
             id="section1"
@@ -180,7 +180,7 @@ const url = ref(
   process.env.DEV ? "http://localhost:3000" : "https://opportunity.eu-4.evennode.com"
 );
 
-console.log(store.role);
+
 
 const get_stock_data = async () => {
   try {
@@ -190,8 +190,7 @@ const get_stock_data = async () => {
     const response = await pythonService
       .getStockMarketData()
       .then((response) => {
-        // console.log(response.data.stock_market);
-        // insert object at beginning of array
+
         response.data.stock_market.unshift({
           Description: "Market Figures courtesy of Yahoo Finance",
           change: null,
@@ -325,7 +324,7 @@ onBeforeMount(() => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
-    console.log(response.data);
+  
 
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {
@@ -369,7 +368,6 @@ const get_info = async () => {
 
     data_from_db.value = response.data;
 
-    // console.log("XXX", data_from_db.value);
 
     capital.value = data_from_db.value.reduce((acc, el) => {
       if (el.amount_invested === "CLOSED") {
@@ -396,14 +394,14 @@ const get_info = async () => {
     interest.value = convertToString(interest.value);
 
     let dev = [];
-    console.log(data_from_db.value);
+  
     data_from_db.value.forEach((el) => {
       dev.push(el.investor_acc_number);
     });
 
     dev = [...new Set(dev)];
 
-    console.log(dev);
+  
 
     development_data.value = [];
 
@@ -495,7 +493,6 @@ const get_chart_info = async () => {
   let response = await pythonService
     .getChartData(data)
     .then((response) => {
-      console.log(response.data.final_chart_data);
       chart_data.value = response.data.final_chart_data;
 
       let ave_return = (
@@ -512,8 +509,7 @@ const get_chart_info = async () => {
         }, 0) / chart_data.value.length
       ).toFixed(1);
 
-      // console.log(ave_return);
-      // console.log(ave_roi);
+ 
 
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {

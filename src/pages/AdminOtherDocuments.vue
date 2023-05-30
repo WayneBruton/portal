@@ -171,7 +171,7 @@ const rows = ref([]);
 
 const files = store.files;
 
-// console.log(files);
+
 
 files.forEach((el) => {
   let fileName = el.value.split("/");
@@ -191,7 +191,7 @@ files.forEach((el) => {
 
   let newKey = el.key.split(" ");
   let newFileBreak = "";
-  // console.log(newKey);
+ 
   if (newKey[0] === "Id") {
     newFileBreak = fileName.split("ID")[0];
   } else if (newKey[0] === "Disclaimer") {
@@ -201,7 +201,7 @@ files.forEach((el) => {
   } else {
     newFileBreak = fileName.split(newKey[0])[0];
   }
-  // console.log("newFileBreak", newFileBreak);
+ 
   // take the first 6 characters of the newFileBreak and assign it to el.account_number
   el.account_number = newFileBreak.slice(0, 6);
   // take from character 7 to the end of the newFileBreak and assign it to el.unit
@@ -222,11 +222,7 @@ files.forEach((el) => {
       el.unit = el.unit.slice(2);
     }
   }
-  // console.log("el.unit", el.unit);
-  // console.log("el.development", el.development);
 
-  // console.log("el.account_number", el.account_number);
-  // console.log("fileName", fileName);
 
   // fileName = fileName.slice(0, 6);
 
@@ -271,9 +267,7 @@ files.forEach((el) => {
   // only keep unique rows
 });
 
-// rows.value.forEach((el) => {
-//   console.log(el);
-// });
+
 </script>
 
 <style scoped>

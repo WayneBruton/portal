@@ -19,16 +19,71 @@ const display_data = ref({});
 
 onMounted(() => {
   display_data.value = store.display_data2;
-  console.log("XXXX", display_data.value);
+
   options.value.plugins.title.text = `Averages on All Closed Investments`;
 });
 
 const options = ref({
   scales: {},
+  scales: {
+    xAxis: {
+      offset: true,
+      color: "green",
+      display: true,
+
+      title: {
+        display: true,
+        text: "Investment Details",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+      grid: {
+        display: true,
+        color: "white",
+        drawBorder: true, // Hide the border
+        drawOnChartArea: true, // Hide the gridlines within the chart area
+        drawTicks: true, // Hide the gridlines intersecting the tick marks
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0],
+      },
+      ticks: {
+        color: "grey",
+      },
+    },
+    yAxis: {
+      offset: false,
+      position: "left",
+      color: "green",
+      display: true,
+
+      title: {
+        display: true,
+        text: "Interest Rate (%)",
+        color: "white",
+        font: {
+          size: 14,
+          bold: true,
+        },
+      },
+      grid: {
+        display: true,
+        color: "white",
+        drawBorder: true, // Hide the border
+        drawOnChartArea: true, // Hide the gridlines within the chart area
+        drawTicks: true, // Hide the gridlines intersecting the tick marks
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0],
+      },
+      ticks: {
+        color: "grey",
+      },
+    },
+  },
   plugins: {
     title: {
       display: true,
-      text: "Averages on Closed Investments",
+      text: "Investment Summary",
       color: "white",
       font: {
         size: 16,
@@ -80,32 +135,8 @@ const options = ref({
       },
     },
   },
+  // Show the x and y axes
 
-  scales: {
-    x: {
-      offset: true,
-      title: {
-        display: true,
-        text: "Details",
-        color: "white",
-        font: {
-          size: 14,
-          bold: true,
-        },
-      },
-    },
-    y: {
-      title: {
-        display: true,
-        text: "Interest Rate (%)",
-        color: "white",
-        font: {
-          size: 14,
-          bold: true,
-        },
-      },
-    },
-  },
   layout: {
     padding: {
       top: 30, // Adjust the top padding value as needed

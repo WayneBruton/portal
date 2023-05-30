@@ -223,7 +223,7 @@ const get_info = async () => {
     });
 
     rows.value = response.data;
-    // console.log("ROWS", rows.value);
+
   } catch (error) {
     console.error(error);
   }
@@ -240,7 +240,7 @@ const investorUserAccounts = (e) => {
 };
 
 const invite = async (e) => {
-  // console.log(e);
+ 
 
   const response = await pythonService
     .addInvestorToPortal({
@@ -251,7 +251,7 @@ const invite = async (e) => {
       id: e._id,
     })
     .then((res) => {
-      // console.log("RESS", res);
+   
       if (res.data.message === "Email sent successfully") {
         $q.notify({
           message: "Email sent successfully",
@@ -268,7 +268,7 @@ const invite = async (e) => {
       }
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       $q.notify({
         message: "Email not sent",
         color: "red",

@@ -199,7 +199,7 @@ verifyUser();
 
 const getUsers = async () => {
   const response = await nodeService.getAdminUsers().then((response) => {
-    // console.log(response.data);
+  
     rows.value = response.data;
   });
 };
@@ -211,7 +211,7 @@ onMounted(async () => {
 const filter = ref("");
 
 const store = useUserStore();
-// console.log(store.name);
+
 
 const remove = ref(false);
 const add_user = ref(false);
@@ -221,7 +221,7 @@ const userToRemove = ref("");
 const removeDialog = (id) => {
   remove.value = true;
   userToRemove.value = id;
-  //   console.log(id);
+
 };
 
 const deleteUser = async () => {
@@ -230,7 +230,7 @@ const deleteUser = async () => {
     _id: userToRemove.value,
   };
   const response = await nodeService.deleteAdminUser(data).then((response) => {
-    console.log(response.data);
+   
     getUsers();
   });
 };
@@ -254,9 +254,9 @@ const onSubmit = async () => {
   user.value.password = randomString;
   user.value.created_at = dayjs().format("YYYY-MM-DD");
   user.value.updated_at = dayjs().format("YYYY-MM-DD");
-  //   console.log(user.value);
+ 
   const response = await nodeService.addAdminUser(user.value).then((response) => {
-    // console.log(response.data);
+   
     closeForm();
     getUsers();
   });

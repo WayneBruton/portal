@@ -165,19 +165,28 @@ let investor_view_links = [
     color: "grey",
     isActive: true,
   },
+  // {
+  //   // path: `/admin/useraccountsdetail/${store.investor_acc_number}`,
+  //   path: `/admin/useraccountsdetail/${store.current_investment_viewed}`,
+  //   name: "Investments",
+  //   icon: "mdi-account-group",
+  //   color: "grey",
+  //   isActive: false,
+  // },
   {
-    path: `/admin/useraccountsdetail/${store.current_investment_viewed}`,
+    path: `/admin/useraccountsdetail/${store.investor_acc_number}`,
+    // path: `/admin/useraccountsdetail/${store.current_investment_viewed}`,
     name: "Investments",
     icon: "mdi-account-group",
     color: "grey",
-    isActive: false,
+    isActive: true,
   },
   {
     path: `/admin/useraccounts/investor/${store.investor_acc_number}`,
     name: "Investment List",
     icon: "mdi-account-group",
     color: "grey",
-    isActive: false,
+    isActive: true,
   },
   {
     path: `/admin/loanagreements/${store.investor_acc_number}`,
@@ -209,13 +218,7 @@ if (store.role === "INVESTOR") {
   investor_view_links = investor_view_links.filter((item) => item.path !== "/admin");
 }
 
-if (store.current_investment_viewed === "") {
-  investor_view_links = investor_view_links.filter((item) => item.isActive === true);
-} else {
-  investor_view_links = investor_view_links;
-}
 
-// console.log(route.path);
 
 let route_links = [
   {
@@ -276,8 +279,9 @@ if (store.name !== "WayneAdmin" && store.name !== "Wayne" && store.name !== "Deb
   cursor: pointer;
 }
 .img-first {
-  width: 120px;
-  margin-left: 10%;
+  /* width: 120px; */
+  width: 10%;
+  margin-left: 5%;
   margin-bottom: 1%;
 }
 .sticky-element {

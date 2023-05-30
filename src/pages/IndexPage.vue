@@ -299,13 +299,13 @@ const checkEmailAddress = async () => {
   if (response.data.user_exists === false) {
     email_verified.value = false;
   } else {
-    console.log(response.data);
+
     email_verified.value = true;
     id_toChange_password.value = response.data._id;
     radioEmailLabel.value = `Email: ${response.data.email}`;
     // radioSMSLabel.value = `SMS: COMING SOON`;
     radioSMSLabel.value = `SMS: ${response.data.mobile}`;
-    // console.log(response.data.mobile);
+    
   }
 };
 
