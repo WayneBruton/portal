@@ -141,6 +141,27 @@
         <div>
           <GraphInvestments :display_data="display_data" v-if="showGraph" />
         </div>
+        <div>
+          <GraphInvestmentsA
+            id="section1"
+            :display_data="display_dataA"
+            v-if="showGraph && store.display_dataA.labels.length > 0"
+          />
+        </div>
+        <div>
+          <GraphInvestmentsB
+            id="section1"
+            :display_data="display_dataB"
+            v-if="showGraph && store.display_dataB.labels.length > 0"
+          />
+        </div>
+        <div>
+          <GraphInvestmentsC
+            id="section1"
+            :display_data="display_dataC"
+            v-if="showGraph && store.display_dataC.labels.length > 0"
+          />
+        </div>
         <br />
         <hr id="section1" />
         <div>
@@ -165,6 +186,9 @@ import { useUserStore } from "../stores/userStore";
 import { useRouter, useRoute } from "vue-router";
 import stdHeader from "../components/StdHeader.vue";
 import GraphInvestments from "../components/GraphInvestments.vue";
+import GraphInvestmentsA from "../components/GraphInvestmentsA.vue";
+import GraphInvestmentsB from "../components/GraphInvestmentsB.vue";
+import GraphInvestmentsC from "../components/GraphInvestmentsC.vue";
 import GraphInvestmentsSummary from "../components/GraphInvestmentsSummary.vue";
 import verifyUser from "src/helperFiles/verifyUserToken";
 import dayjs from "dayjs";
@@ -221,6 +245,10 @@ const display_data = ref({
   ],
 });
 
+const display_dataA = ref({});
+const display_dataB = ref({});
+const display_dataC = ref({});
+
 const display_data2 = ref({
   labels: [],
   datasets: [
@@ -230,6 +258,7 @@ const display_data2 = ref({
       backgroundColor: ["rgba(212,175,55, 0.4)"],
       borderColor: ["rgba(212,175,55, 1)"],
       borderWidth: 1,
+
       datalabels: {
         display: true,
       },
@@ -251,7 +280,10 @@ const showGraph = ref(false);
 const showSummaryGraph = ref(false);
 
 const get_chart_info = async () => {
-  store.display_data = {};
+  store.display_data = JSON.parse(JSON.stringify(display_data.value));
+  store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+  store.display_dataB = JSON.parse(JSON.stringify(display_data.value));
+  store.display_dataC = JSON.parse(JSON.stringify(display_data.value));
   store.summary_data = "";
 
   if (closed_investments.value.length === 0) {
@@ -265,6 +297,10 @@ const get_chart_info = async () => {
     .getChartData(data)
     .then((response) => {
       chart_data.value = response.data.final_chart_data;
+      // sort by investment_number
+      chart_data.value.sort((a, b) => {
+        return a.investment_number - b.investment_number;
+      });
 
       let ave_return = (
         chart_data.value.reduce((acc, el) => {
@@ -310,13 +346,107 @@ const get_chart_info = async () => {
         showSummaryGraph.value = false;
       }
 
-      store.display_data = display_data.value;
+      let endNumber = divideArrayLengths(chart_data.value.length);
+
+      // Loop through end number and make weach number be itself plus the previous number, the first number is itself, the swecond number is the first number plus itself, the third number is the second number plus itself etc
+      let newNumber = [];
+      endNumber.forEach((el, index) => {
+        if (index === 0) {
+          newNumber.push(el);
+        } else {
+          newNumber.push(el + newNumber[index - 1]);
+        }
+      });
+
+      endNumber = newNumber;
+
+      if (display_data.value.labels.length <= 10) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+      } else if (endNumber.length == 2) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+      } else if (endNumber.length == 3) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        // store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataB = JSON.parse(JSON.stringify(display_data.value));
+      } else if (endNumber.length > 3) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataB = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataC = JSON.parse(JSON.stringify(display_data.value));
+      }
+
+      endNumber.forEach((el, index, arr) => {
+        if (index === 0) {
+          store.display_data.labels = store.display_data.labels.slice(0, el);
+          store.display_data.datasets[0].data = store.display_data.datasets[0].data.slice(
+            0,
+            el
+          );
+          store.display_data.datasets[1].data = store.display_data.datasets[1].data.slice(
+            0,
+            el
+          );
+        } else if (index === 1 && arr.length > 1) {
+          store.display_dataA.labels = store.display_dataA.labels.slice(arr[0], el);
+
+          store.display_dataA.datasets[0].data = store.display_dataA.datasets[0].data.slice(
+            arr[0],
+            el
+          );
+          store.display_dataA.datasets[1].data = store.display_dataA.datasets[1].data.slice(
+            arr[0],
+            el
+          );
+        } else if (index === 2 && arr.length > 2) {
+          store.display_dataB.labels = store.display_dataB.labels.slice(arr[1], el);
+          store.display_dataB.datasets[0].data = store.display_dataB.datasets[0].data.slice(
+            arr[1],
+            el
+          );
+          store.display_dataB.datasets[1].data = store.display_dataB.datasets[1].data.slice(
+            arr[1],
+            el
+          );
+        } else if (index === 3 && arr.length >= 3) {
+          console.log(index);
+          store.display_dataC.labels = store.display_dataC.labels.slice(arr[3], 50);
+          store.display_dataC.datasets[0].data = store.display_dataC.datasets[0].data.slice(
+            arr[3],
+            50
+          );
+
+          store.display_dataC.datasets[1].data = store.display_dataC.datasets[1].data.slice(
+            arr[3],
+            50
+          );
+        }
+      });
 
       showGraph.value = true;
     })
     .catch((error) => {
       console.error(error);
     });
+};
+
+const divideArrayLengths = (length) => {
+  var numParts = Math.ceil(length / 10);
+  var baseSize = Math.floor(length / numParts);
+  var remaining = length % numParts;
+
+  var lengths = new Array(numParts).fill(baseSize);
+  var remainingElements = remaining;
+
+  for (var i = 0; i < numParts; i++) {
+    if (remainingElements > 0) {
+      lengths[i]++;
+      remainingElements--;
+    }
+  }
+
+  return lengths;
 };
 
 const scrollToSection = (id) => {

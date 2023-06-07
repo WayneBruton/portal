@@ -136,6 +136,27 @@
         <div>
           <GraphInvestments id="section1" :display_data="display_data" v-if="showGraph" />
         </div>
+        <div>
+          <GraphInvestmentsA
+            id="section1"
+            :display_data="display_dataA"
+            v-if="showGraph && store.display_dataA.labels.length > 0"
+          />
+        </div>
+        <div>
+          <GraphInvestmentsB
+            id="section1"
+            :display_data="display_dataB"
+            v-if="showGraph && store.display_dataB.labels.length > 0"
+          />
+        </div>
+        <div>
+          <GraphInvestmentsC
+            id="section1"
+            :display_data="display_dataC"
+            v-if="showGraph && store.display_dataC.labels.length > 0"
+          />
+        </div>
         <br v-if="showSummaryGraph" />
         <hr v-if="showSummaryGraph" />
         <div>
@@ -164,6 +185,9 @@ import verifyUser from "src/helperFiles/verifyUserToken";
 import MarqueeText from "vue-marquee-text-component";
 import axios from "axios";
 import GraphInvestments from "../components/GraphInvestments.vue";
+import GraphInvestmentsA from "../components/GraphInvestmentsA.vue";
+import GraphInvestmentsB from "../components/GraphInvestmentsB.vue";
+import GraphInvestmentsC from "../components/GraphInvestmentsC.vue";
 import GraphInvestmentsSummary from "../components/GraphInvestmentsSummary.vue";
 
 verifyUser();
@@ -180,8 +204,6 @@ const url = ref(
   process.env.DEV ? "http://localhost:3000" : "https://opportunity.eu-4.evennode.com"
 );
 
-
-
 const get_stock_data = async () => {
   try {
     // stock_market.value = [];
@@ -190,7 +212,6 @@ const get_stock_data = async () => {
     const response = await pythonService
       .getStockMarketData()
       .then((response) => {
-
         response.data.stock_market.unshift({
           Description: "Market Figures courtesy of Yahoo Finance",
           change: null,
@@ -324,7 +345,6 @@ onBeforeMount(() => {
 const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
-  
 
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {
@@ -368,7 +388,6 @@ const get_info = async () => {
 
     data_from_db.value = response.data;
 
-
     capital.value = data_from_db.value.reduce((acc, el) => {
       if (el.amount_invested === "CLOSED") {
         acc = acc;
@@ -394,14 +413,12 @@ const get_info = async () => {
     interest.value = convertToString(interest.value);
 
     let dev = [];
-  
+
     data_from_db.value.forEach((el) => {
       dev.push(el.investor_acc_number);
     });
 
     dev = [...new Set(dev)];
-
-  
 
     development_data.value = [];
 
@@ -446,6 +463,10 @@ const display_data = ref({
   ],
 });
 
+const display_dataA = ref({});
+const display_dataB = ref({});
+const display_dataC = ref({});
+
 const display_data2 = ref({
   labels: [],
   datasets: [
@@ -455,6 +476,8 @@ const display_data2 = ref({
       backgroundColor: ["rgba(212,175,55, 0.4)"],
       borderColor: ["rgba(212,175,55, 1)"],
       borderWidth: 1,
+      // barPercentage: 0.5,
+      // categoryPercentage: 1.0,
       datalabels: {
         display: true,
       },
@@ -465,6 +488,8 @@ const display_data2 = ref({
       backgroundColor: ["rgba(192,192,192, 0.4)"],
       borderColor: ["rgba(192,192,192, 1)"],
       borderWidth: 1,
+      // barPercentage: 0.5,
+      // categoryPercentage: 1.0,
       datalabels: {
         display: true,
       },
@@ -478,7 +503,10 @@ const showGraph = ref(false);
 const showSummaryGraph = ref(false);
 
 const get_chart_info = async () => {
-  store.display_data = {};
+  store.display_data = JSON.parse(JSON.stringify(display_data.value));
+  store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+  store.display_dataB = JSON.parse(JSON.stringify(display_data.value));
+  store.display_dataC = JSON.parse(JSON.stringify(display_data.value));
   store.summary_data = "";
   if (development_data.value.length > 1) {
     return;
@@ -494,6 +522,24 @@ const get_chart_info = async () => {
     .getChartData(data)
     .then((response) => {
       chart_data.value = response.data.final_chart_data;
+      // console.log(chart_data.value);
+      // keep only the first 12 records
+
+      // sort by investment_number
+      chart_data.value.sort((a, b) => {
+        if (a.investment_number < b.investment_number) {
+          return -1;
+        }
+        if (a.investment_number > b.investment_number) {
+          return 1;
+        }
+        return 0;
+      });
+
+      // chart_data.value = chart_data.value.slice(0, 21);
+      // console.log(chart_data.value);
+      // only keep the first 12 records
+      // chart_data.value = chart_data.value.slice(0, 9);
 
       let ave_return = (
         chart_data.value.reduce((acc, el) => {
@@ -508,8 +554,6 @@ const get_chart_info = async () => {
           return acc;
         }, 0) / chart_data.value.length
       ).toFixed(1);
-
- 
 
       display_data.value.labels = [];
       display_data.value.datasets.forEach((el) => {
@@ -538,12 +582,108 @@ const get_chart_info = async () => {
       } else {
         showSummaryGraph.value = false;
       }
-      store.display_data = display_data.value;
+
+      let endNumber = divideArrayLengths(chart_data.value.length);
+
+      // Loop through end number and make weach number be itself plus the previous number, the first number is itself, the swecond number is the first number plus itself, the third number is the second number plus itself etc
+      let newNumber = [];
+      endNumber.forEach((el, index) => {
+        if (index === 0) {
+          newNumber.push(el);
+        } else {
+          newNumber.push(el + newNumber[index - 1]);
+        }
+      });
+
+      endNumber = newNumber;
+
+      if (display_data.value.labels.length <= 10) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+      } else if (endNumber.length == 2) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+      } else if (endNumber.length == 3) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        // store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataB = JSON.parse(JSON.stringify(display_data.value));
+      } else if (endNumber.length > 3) {
+        store.display_data = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataA = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataB = JSON.parse(JSON.stringify(display_data.value));
+        store.display_dataC = JSON.parse(JSON.stringify(display_data.value));
+      }
+
+      endNumber.forEach((el, index, arr) => {
+        if (index === 0) {
+          store.display_data.labels = store.display_data.labels.slice(0, el);
+          store.display_data.datasets[0].data = store.display_data.datasets[0].data.slice(
+            0,
+            el
+          );
+          store.display_data.datasets[1].data = store.display_data.datasets[1].data.slice(
+            0,
+            el
+          );
+        } else if (index === 1 && arr.length > 1) {
+          store.display_dataA.labels = store.display_dataA.labels.slice(arr[0], el);
+
+          store.display_dataA.datasets[0].data = store.display_dataA.datasets[0].data.slice(
+            arr[0],
+            el
+          );
+          store.display_dataA.datasets[1].data = store.display_dataA.datasets[1].data.slice(
+            arr[0],
+            el
+          );
+        } else if (index === 2 && arr.length > 2) {
+          store.display_dataB.labels = store.display_dataB.labels.slice(arr[1], el);
+          store.display_dataB.datasets[0].data = store.display_dataB.datasets[0].data.slice(
+            arr[1],
+            el
+          );
+          store.display_dataB.datasets[1].data = store.display_dataB.datasets[1].data.slice(
+            arr[1],
+            el
+          );
+        } else if (index === 3 && arr.length >= 3) {
+          console.log(index);
+          store.display_dataC.labels = store.display_dataC.labels.slice(arr[3], 50);
+          store.display_dataC.datasets[0].data = store.display_dataC.datasets[0].data.slice(
+            arr[3],
+            50
+          );
+
+          store.display_dataC.datasets[1].data = store.display_dataC.datasets[1].data.slice(
+            arr[3],
+            50
+          );
+        }
+      });
+
       showGraph.value = true;
     })
     .catch((error) => {
       console.error(error);
     });
+};
+
+const divideArrayLengths = (length) => {
+  var numParts = Math.ceil(length / 10);
+  var baseSize = Math.floor(length / numParts);
+  var remaining = length % numParts;
+
+  var lengths = new Array(numParts).fill(baseSize);
+  var remainingElements = remaining;
+
+  for (var i = 0; i < numParts; i++) {
+    if (remainingElements > 0) {
+      lengths[i]++;
+      remainingElements--;
+    }
+  }
+
+  return lengths;
 };
 
 const getCurrentInvestorSummary = (e) => {

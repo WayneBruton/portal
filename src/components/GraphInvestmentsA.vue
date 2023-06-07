@@ -1,15 +1,19 @@
 <template>
   <div>
-    <BarChart :chartData="display_data" :options="options" />
+    <BarChart :options="options" :chartData="display_data" />
+    <!-- <canvas id="myChart"></canvas> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, defineComponent } from "vue";
-import { BarChart } from "vue-chart-3";
 import { useUserStore } from "../stores/userStore";
+import { BarChart } from "vue-chart-3";
+// const { reactiveProp } = mixins
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+// import Chart from "chart.js/auto";
+
 Chart.register(ChartDataLabels);
 Chart.register(...registerables);
 
@@ -18,9 +22,9 @@ const store = useUserStore();
 const display_data = ref({});
 
 onMounted(() => {
-  display_data.value = store.display_data2;
+  display_data.value = store.display_dataA;
 
-  options.value.plugins.title.text = `Average of Closed Investments`;
+  options.value.plugins.title.text = `Investment Summary - Closed Investments (Oldest to Newest) Cont..`;
 });
 
 const options = ref({
@@ -30,6 +34,8 @@ const options = ref({
       offset: true,
       color: "green",
       display: true,
+      barThickness: 6, // number (pixels) or 'flex'
+      maxBarThickness: 8, // number (pixels)
 
       title: {
         display: true,
@@ -46,7 +52,7 @@ const options = ref({
         drawBorder: true, // Hide the border
         drawOnChartArea: true, // Hide the gridlines within the chart area
         drawTicks: true, // Hide the gridlines intersecting the tick marks
-        lineWidth: [0.5, 0, 0, 0, 0, 0, 0],
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       },
       ticks: {
         color: "grey",
@@ -73,7 +79,7 @@ const options = ref({
         drawBorder: true, // Hide the border
         drawOnChartArea: true, // Hide the gridlines within the chart area
         drawTicks: true, // Hide the gridlines intersecting the tick marks
-        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0],
       },
       ticks: {
         color: "grey",
@@ -85,6 +91,7 @@ const options = ref({
       display: true,
       text: "Investment Summary",
       color: "white",
+
       font: {
         size: 16,
         bold: true,
@@ -143,4 +150,8 @@ const options = ref({
     },
   },
 });
+
+// return { options, graph_display_data };
+//   },
+// });
 </script>

@@ -1,15 +1,19 @@
 <template>
   <div>
-    <BarChart :chartData="display_data" :options="options" />
+    <BarChart :options="options" :chartData="display_data" />
+    <!-- <canvas id="myChart"></canvas> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, defineComponent } from "vue";
-import { BarChart } from "vue-chart-3";
 import { useUserStore } from "../stores/userStore";
+import { BarChart } from "vue-chart-3";
+// const { reactiveProp } = mixins
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+// import Chart from "chart.js/auto";
+
 Chart.register(ChartDataLabels);
 Chart.register(...registerables);
 
@@ -18,19 +22,19 @@ const store = useUserStore();
 const display_data = ref({});
 
 onMounted(() => {
-  display_data.value = store.display_data2;
+  display_data.value = store.display_dataB;
+  // display_dataB.value.barThickness = 5;
 
-  options.value.plugins.title.text = `Average of Closed Investments`;
+  options.value.plugins.title.text = `Investment Summary - Closed Investments (Oldest to Newest) Cont...`;
 });
 
 const options = ref({
-  scales: {},
   scales: {
     xAxis: {
       offset: true,
       color: "green",
       display: true,
-
+      maxBarThickness: 10,
       title: {
         display: true,
         text: "Investment Details",
@@ -46,8 +50,9 @@ const options = ref({
         drawBorder: true, // Hide the border
         drawOnChartArea: true, // Hide the gridlines within the chart area
         drawTicks: true, // Hide the gridlines intersecting the tick marks
-        lineWidth: [0.5, 0, 0, 0, 0, 0, 0],
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       },
+
       ticks: {
         color: "grey",
       },
@@ -57,6 +62,7 @@ const options = ref({
       position: "left",
       color: "green",
       display: true,
+      barPercentage: 0.1,
 
       title: {
         display: true,
@@ -73,7 +79,7 @@ const options = ref({
         drawBorder: true, // Hide the border
         drawOnChartArea: true, // Hide the gridlines within the chart area
         drawTicks: true, // Hide the gridlines intersecting the tick marks
-        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0],
       },
       ticks: {
         color: "grey",
@@ -143,4 +149,8 @@ const options = ref({
     },
   },
 });
+
+// return { options, graph_display_data };
+//   },
+// });
 </script>

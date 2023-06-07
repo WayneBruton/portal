@@ -24,7 +24,7 @@ const display_data = ref({});
 onMounted(() => {
   display_data.value = store.display_data;
 
-  options.value.plugins.title.text = `Investment Summary - Closed Investments`;
+  options.value.plugins.title.text = `Investment Summary - Closed Investments (Oldest to Newest)`;
 });
 
 const options = ref({
@@ -50,7 +50,7 @@ const options = ref({
         drawBorder: true, // Hide the border
         drawOnChartArea: true, // Hide the gridlines within the chart area
         drawTicks: true, // Hide the gridlines intersecting the tick marks
-        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0],
+        lineWidth: [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       },
       ticks: {
         color: "grey",
