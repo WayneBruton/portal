@@ -2,7 +2,6 @@
   <q-page>
     <std-header />
     <br /><br />
-
     <div class="row" v-if="screenwidth >= 1023">
       <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1"></div>
       <div
@@ -842,11 +841,9 @@ const exitInvestment = (e) => {
 };
 
 const submitExit = async () => {
- 
   await pythonService
     .investmendEnding(investmentExit.value)
     .then((res) => {
- 
       // notification that notification has been sent
       if (res.data.message === "Email sent successfully") {
         $q.notify({
@@ -889,8 +886,6 @@ const get_info = async () => {
   try {
     const response = await nodeService.getInvestments(route.params);
 
-  
-
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {
       if (a.investor_acc_number < b.investor_acc_number) {
@@ -927,6 +922,17 @@ const get_info = async () => {
     });
 
     rows.value = response.data;
+
+    // sort rows.value by investment_number descending
+    rows.value.sort((a, b) => {
+      if (a.investment_number < b.investment_number) {
+        return 1;
+      }
+      if (a.investment_number > b.investment_number) {
+        return -1;
+      }
+      return 0;
+    });
 
     let filtered = route.path.split("/");
 

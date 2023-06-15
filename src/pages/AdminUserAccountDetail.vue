@@ -47,7 +47,7 @@
         >
         <!-- v-if="closed_investments.length > 0" -->
         <q-btn
-          v-if="showGraph"
+          :disable="!showGraph"
           color="grey"
           class="showButtons"
           size="s"
