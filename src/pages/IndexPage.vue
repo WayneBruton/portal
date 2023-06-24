@@ -154,7 +154,16 @@
                 val="SMS"
                 :label="radioSMSLabel"
                 color="yellow"
-              />
+              >
+                <q-tooltip
+                  anchor="center right"
+                  self="center left"
+                  class="bg-red"
+                  :offset="[-100, -50]"
+                >
+                  Please check your number (Only RSA numbers at this time)
+                </q-tooltip>
+              </q-radio>
             </div>
 
             <q-btn
@@ -299,13 +308,14 @@ const checkEmailAddress = async () => {
   if (response.data.user_exists === false) {
     email_verified.value = false;
   } else {
-
     email_verified.value = true;
     id_toChange_password.value = response.data._id;
     radioEmailLabel.value = `Email: ${response.data.email}`;
+
     // radioSMSLabel.value = `SMS: COMING SOON`;
-    radioSMSLabel.value = `SMS: ${response.data.mobile}`;
-    
+    // remove the first digit of the mobile number
+
+    radioSMSLabel.value = `SMS (+27): ${response.data.mobile}`;
   }
 };
 
