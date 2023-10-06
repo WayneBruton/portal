@@ -116,6 +116,7 @@
         </q-toolbar>
       </div>
     </div>
+    <!-- <chat-bot /> -->
   </div>
 </template>
 
@@ -123,6 +124,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { ref, onMounted, onBeforeUnmount, watchEffect } from "vue";
 import { useUserStore } from "../stores/userStore";
+// import chatBot from "../components/Chat-Bot.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -217,8 +219,6 @@ let investor_view_links = [
 if (store.role === "INVESTOR") {
   investor_view_links = investor_view_links.filter((item) => item.path !== "/admin");
 }
-
-
 
 let route_links = [
   {

@@ -282,6 +282,7 @@ const get_info = async () => {
 
   try {
     const response = await nodeService.getInvestorStatement(route.params);
+    console.log("XXYY", response.data);
     response.data = response.data.filter((el) => {
       return el.days !== 0;
     });

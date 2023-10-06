@@ -55,6 +55,13 @@
                   <q-td key="investment_name" :props="props">
                     {{ props.row.investment_name }}
                   </q-td>
+                  <q-td
+                    key="opportunity_code_rolled_from"
+                    :props="props"
+                    style="color: #f5e8b7"
+                  >
+                    {{ props.row.opportunity_code_rolled_from }}
+                  </q-td>
                   <q-td key="investment_number" :props="props">
                     {{ props.row.investment_number }}
                   </q-td>
@@ -376,20 +383,20 @@
             <hr style="width: 100%" />
             <br />
             <p>
-              PLease refer to important information below
+              Please refer to important information below
               <strong>before</strong> submitting the form.
             </p>
 
             <p>
-              <strong>Disclaimer:</strong> The following is applicable to the next
-              available investment phase. Please note these figures are based as at
+              <strong>Disclaimer:</strong>Please note these figures are based as at
               {{ dayjs(new Date()).format("DD-MM-YYYY") }} and will change depending on
-              the actual transfer date.
+              the actual exit date.
             </p>
             <p>
-              <strong>Fixed Investor Returns:</strong> The projected returns below are
-              applicable to the next investment cycle. Please note that these are subject
-              to change and should this occur, Opportunity will communicate this to you.
+              <strong>Investor Returns:</strong> The projected returns below are
+              applicable to the next investment cycle, and take effect once capital is
+              deployed into the project. Please note that these are subject to change and
+              should this occur, Opportunity will communicate this to you.
             </p>
             <ol>
               <li>Investments of R 100 000 – R 499 000 @ 14% p.a</li>
@@ -406,12 +413,11 @@
             <div style="display: flex">
               <div style="width: 25%">
                 <q-checkbox
-                  v-model="investmentExit.full_exit"
-                  label="Full Exit"
-                  color="yellow"
-                  debounce="500"
                   keep-color
-                  @update:model-value="updateCheckbox_full_exit"
+                  v-model="investmentExit.full_rollover"
+                  label="Full Rollover"
+                  color="orange"
+                  @update:model-value="updateCheckbox_full_rollover"
                 />
               </div>
               <div style="width: 25%; margin: 5px; text-align: end">
@@ -422,11 +428,12 @@
             <div style="display: flex">
               <div style="width: 25%">
                 <q-checkbox
+                  v-model="investmentExit.full_exit"
+                  label="Full Exit"
+                  color="yellow"
+                  debounce="500"
                   keep-color
-                  v-model="investmentExit.full_rollover"
-                  label="Full Rollover"
-                  color="orange"
-                  @update:model-value="updateCheckbox_full_rollover"
+                  @update:model-value="updateCheckbox_full_exit"
                 />
               </div>
               <div style="width: 25%; margin: 5px; text-align: end">
@@ -723,7 +730,7 @@ const columns = [
   {
     name: "investment_name",
     required: true,
-    label: "Name",
+    label: "Code",
     align: "left",
     field: "investment_name",
     sortable: true,
@@ -731,9 +738,16 @@ const columns = [
   {
     name: "opportunity_code",
     align: "center",
-    label: "Code",
+    label: "Name",
     field: "opportunity_code",
 
+    sortable: true,
+  },
+  {
+    name: "opportunity_code_rolled_from",
+    align: "center",
+    label: "Rolled From",
+    field: "opportunity_code_rolled_from",
     sortable: true,
   },
   {

@@ -2,6 +2,7 @@
   <q-page>
     <std-header />
     <br />
+
     <MarqueeText
       duration="35"
       style="margin-bottom: 15px"
