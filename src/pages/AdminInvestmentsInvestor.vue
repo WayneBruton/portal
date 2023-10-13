@@ -148,7 +148,8 @@
                         props.row.days !== null &&
                         props.row.days < 8
                       "
-                      style="margin-left: 5px; background: red; color: white"
+                      style="margin-left: 5px; color: white"
+                      :color="props.row.color"
                       no-caps
                       :id="props.row._id"
                       size="s"
@@ -292,12 +293,13 @@
                 style="
                   margin: 5px 5px;
                   padding: 5px 0px;
-                  background: red;
+
                   color: white;
                   width: 100%;
                   border: 1px solid black;
                   height: 30px;
                 "
+                :color="item.color"
                 no-caps
                 dense
                 :id="item._id"
@@ -746,8 +748,9 @@ const columns = [
   {
     name: "opportunity_code_rolled_from",
     align: "center",
-    label: "Rolled From",
+    label: "Previous Inv",
     field: "opportunity_code_rolled_from",
+    width: "90px",
     sortable: true,
   },
   {
@@ -936,6 +939,7 @@ const get_info = async () => {
     });
 
     rows.value = response.data;
+    console.log(rows.value);
 
     // sort rows.value by investment_number descending
     rows.value.sort((a, b) => {
