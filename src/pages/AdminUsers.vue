@@ -20,7 +20,6 @@
               :columns="columns"
               :filter="filter"
               row-key="name"
-              :pagination="initialPagination"
               style="color: lightgrey; font-size: 18px"
               wrap-cells
             >
@@ -64,8 +63,24 @@
                   <q-td key="mobile" :props="props">
                     {{ props.row.mobile }}
                   </q-td>
+                  <q-td key="role" :props="props">
+                    {{ props.row.role }}
+                  </q-td>
 
                   <q-td key="actions" :props="props">
+                    <q-btn
+                      color="orange"
+                      flat
+                      icon="edit"
+                      dense
+                      no-caps
+                      :id="props.row._id"
+                      size="m"
+                      @click="
+                        edit_user = true;
+                        user_to_edit = props.row;
+                      "
+                    ></q-btn>
                     <q-btn
                       color="red"
                       flat
@@ -104,7 +119,7 @@
         <q-card-section class="row items-center">
           <q-avatar icon="person_add_alt_1" color="amber" text-color="white" />
           <q-space />
-          <h6 class="h6">Add User</h6>
+          <h6 class="h6">Add User (Admin Only)</h6>
           <q-space />
         </q-card-section>
 
@@ -132,6 +147,8 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-space />
+          <q-btn outline label="Cancel" color="amber" @click="closeForm" />
+          <q-space />
           <q-btn
             outline
             label="Submit"
@@ -140,7 +157,59 @@
             :disabled="!user.name && !user.surname && !user.email && !user.mobile"
           />
           <q-space />
-          <q-btn outline label="Cancel" color="amber" @click="closeForm" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="edit_user" persistent>
+      <q-card style="width: 600px">
+        <q-card-section class="row items-center">
+          <q-avatar icon="person_add_alt_1" color="amber" text-color="white" />
+          <q-space />
+          <h6 class="h6">Edit User</h6>
+          <q-space />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-pa-md" style="max-width: 600px">
+            <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+              <!-- <q-input filled v-model="user_to_edit.name" label="Name" hint="Name" /> -->
+              <q-input
+                filled
+                v-model="user_to_edit.surname"
+                label="Surname"
+                hint="Surname"
+              />
+              <q-input
+                filled
+                v-model="user_to_edit.email"
+                type="email"
+                label="Email"
+                hint="Email"
+              />
+              <q-input
+                filled
+                v-model="user_to_edit.mobile"
+                mask="### ### ####"
+                label="Mobile"
+                hint="Mobile"
+              />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-space />
+          <q-btn outline label="Cancel" color="amber" @click="closeEditForm" />
+          <q-space />
+          <q-btn
+            outline
+            label="Submit"
+            @click="update_record"
+            color="amber"
+            :disabled="
+              !user_to_edit.surname && !user_to_edit.email && !user_to_edit.mobile
+            "
+          />
           <q-space />
         </q-card-actions>
       </q-card>
@@ -151,6 +220,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import nodeService from "../services/nodeService";
+import { useQuasar } from "quasar";
+import pythonService from "../services/pythonService";
 import stdHeader from "../components/StdHeader.vue";
 import { useUserStore } from "../stores/userStore";
 import verifyUser from "src/helperFiles/verifyUserToken";
@@ -189,9 +260,19 @@ const columns = [
 
     sortable: true,
   },
+  {
+    name: "role",
+    align: "center",
+    label: "Role",
+    field: "role",
+
+    sortable: true,
+  },
 
   { name: "actions", label: "Actions", field: "", align: "left" },
 ];
+
+const $q = useQuasar();
 
 const rows = ref([]);
 
@@ -199,7 +280,6 @@ verifyUser();
 
 const getUsers = async () => {
   const response = await nodeService.getAdminUsers().then((response) => {
-  
     rows.value = response.data;
   });
 };
@@ -212,16 +292,42 @@ const filter = ref("");
 
 const store = useUserStore();
 
-
 const remove = ref(false);
 const add_user = ref(false);
+
+const edit_user = ref(false);
+const user_to_edit = ref({});
 
 const userToRemove = ref("");
 
 const removeDialog = (id) => {
   remove.value = true;
   userToRemove.value = id;
+};
 
+const update_record = async () => {
+  const res = await pythonService.updateUser(user_to_edit.value).then((response) => {
+    // closeForm();
+    closeEditForm();
+    getUsers();
+    if (response.data.message) {
+      $q.notify({
+        color: "green-4",
+        textColor: "white",
+        icon: "cloud_done",
+        message: response.data.message,
+        position: "top",
+      });
+    } else {
+      $q.notify({
+        color: "red-4",
+        textColor: "white",
+        icon: "cloud_done",
+        message: response.data.error,
+        position: "top",
+      });
+    }
+  });
 };
 
 const deleteUser = async () => {
@@ -230,7 +336,6 @@ const deleteUser = async () => {
     _id: userToRemove.value,
   };
   const response = await nodeService.deleteAdminUser(data).then((response) => {
-   
     getUsers();
   });
 };
@@ -254,9 +359,8 @@ const onSubmit = async () => {
   user.value.password = randomString;
   user.value.created_at = dayjs().format("YYYY-MM-DD");
   user.value.updated_at = dayjs().format("YYYY-MM-DD");
- 
+
   const response = await nodeService.addAdminUser(user.value).then((response) => {
-   
     closeForm();
     getUsers();
   });
@@ -280,6 +384,11 @@ const onReset = () => {
 const closeForm = () => {
   add_user.value = false;
   onReset();
+};
+
+const closeEditForm = () => {
+  edit_user.value = false;
+  user_to_edit.value = {};
 };
 </script>
 

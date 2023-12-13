@@ -19,4 +19,7 @@ export default {
   investmendEnding(data) {
     return api().post("/investment_termination", data);
   },
+  updateUser(data) {
+    return api().post("/update_user", data);
+  },
 };

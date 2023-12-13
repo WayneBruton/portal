@@ -258,7 +258,7 @@ let route_links = [
   },
 ];
 
-if (store.name !== "WayneAdmin" && store.name !== "Wayne" && store.name !== "Debbie") {
+if (store.name !== "WayneAdmin" && store.name !== "Wayne" && store.name !== "Leandri") {
   route_links = route_links.filter((item) => item.path !== "/admin/users");
 }
 </script>

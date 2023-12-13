@@ -563,6 +563,8 @@ const get_info = async () => {
 
     development_data.value = [];
 
+    console.log("dev", dev);
+
     dev.forEach((el) => {
       let data_filtered = data_from_db.value.filter((el2) => {
         return el2.opportunity_code === el;
@@ -585,13 +587,24 @@ const get_info = async () => {
           block = `Block ${el.substring(2, 3)}`;
 
           unit = `Unit ${el.slice(-3)}`;
+        } else if (el.substring(0, 2) === "GW") {
+          developmentName = "Goodwood Bulk Refurbishment";
+          block = "";
+          unit = `Erf ${el.slice(-4)}`;
         }
-      } else {
+      } else if (el.substring(0, 1) === "E") {
         developmentName = "Endulini";
         block = `Block ${el.substring(1, 2)}`;
 
         unit = `Unit ${el.slice(-3)}`;
       }
+      // else {
+      //   developmentName = "Goodwood Bulk Refurbishment";
+
+      //   block = ``;
+
+      //   unit = `Erf ${el}`;
+      // }
 
       investment_name.value = `${developmentName} - ${block}  ${unit}`;
 
@@ -619,6 +632,7 @@ const get_info = async () => {
         deposit_date: dayjs(data_filtered[0].deposit_date).format("DD MMM YYYY"),
       };
       development_data.value.push(insert);
+      console.log("XZXZX", development_data.value);
     });
   } catch (error) {
     console.error(error);
