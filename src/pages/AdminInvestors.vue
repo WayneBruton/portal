@@ -224,6 +224,13 @@ const get_info = async () => {
 
     rows.value = response.data;
 
+    // console.log(rows.value);
+    // console.log(store.role);
+    if (store.role === "SALES") {
+      rows.value = rows.value.filter((el) => {
+        return el.investor_acc_number === "ZGEC01";
+      });
+    }
   } catch (error) {
     console.error(error);
   }
@@ -240,8 +247,6 @@ const investorUserAccounts = (e) => {
 };
 
 const invite = async (e) => {
- 
-
   const response = await pythonService
     .addInvestorToPortal({
       email: e.investor_email,
@@ -251,7 +256,6 @@ const invite = async (e) => {
       id: e._id,
     })
     .then((res) => {
-   
       if (res.data.message === "Email sent successfully") {
         $q.notify({
           message: "Email sent successfully",
