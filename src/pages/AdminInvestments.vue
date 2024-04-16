@@ -255,6 +255,11 @@ const get_info = async () => {
     });
 
     rows.value = response.data;
+    if (store.role === "SALES") {
+      rows.value = rows.value.filter((el) => {
+        return el.investor_acc_number === "ZGEC01";
+      });
+    }
   } catch (error) {
     console.error(error);
   }
