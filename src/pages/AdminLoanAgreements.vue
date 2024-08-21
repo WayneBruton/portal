@@ -49,7 +49,7 @@
                   </q-td>
                   <q-td key="actions" :props="props">
                     <a
-                      :href="props.row.value"
+                      :href="props.row.loanAgreement"
                       download
                       target="_blank"
                       style="text-decoration: none; color: red; background: white"
@@ -76,10 +76,22 @@
 
 <script setup>
 import stdHeader from "../components/StdHeader.vue";
-import { useUserStore } from "../stores/userStore";
-import { ref } from "vue";
+// import { useUserStore } from "../stores/userStore";
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import { useRoute } from "vue-router";
 
-const store = useUserStore();
+// const store = useUserStore();
+const route = useRoute();
+// console.log("route", route.params);
+
+let pythonUrl = ref("");
+
+if (process.env.DEV) {
+  pythonUrl.value = "http://localhost:8000";
+} else {
+  pythonUrl.value = "https://omh-python.herokuapp.com";
+}
 
 const columns = [
   {
@@ -120,37 +132,57 @@ const rows = ref([]);
 
 const filter = ref("");
 
+// const loanAgreements = store.loanAgreements;
 
+// console.log("loanAgreements", loanAgreements);
 
-const loanAgreements = store.loanAgreements;
+const loanAgreements = ref([]);
 
-loanAgreements.forEach((el) => {
-  let fileName = el.value.split("/");
-  fileName = fileName[fileName.length - 1].split("LoanAgreement")[0];
-  el.account_number = fileName.slice(0, 6);
-  let unit_number = fileName.slice(6);
-  el.unit = unit_number;
-  if (unit_number.length === 6) {
-    el.unit = unit_number.slice(2, 6);
-    if (unit_number.slice(0, 2) === "HV") {
-      el.development = "Heron View";
-    }
-    if (unit_number.slice(0, 2) === "HF") {
-      el.development = "Heron Fields";
-    }
-  } else if (unit_number.length === 5) {
-    el.unit = unit_number.slice(1, 5);
-    el.development = "Endulini";
-  }
-  // el.unit = unit_number.slice(0, 2);
+const get_files = async () => {
+  let data = {
+    investor_acc_number: route.params.id,
+  };
 
-  // filename equals first 6 characters of filename + "-" + the remaining characterts
-  fileName = fileName.slice(0, 6) + "-" + fileName.slice(6);
- 
-  el.fileName = fileName;
+  let response = await axios.post(`${pythonUrl.value}/get_loan_agreements`, data);
+  // console.log("response", response.data.loan_agreements);
+  loanAgreements.value = response.data.loan_agreements;
+  loanAgreements.value.forEach((el) => {
+    rows.value.push(el);
+  });
+  // rows.value = response.data;
+};
 
-  rows.value.push(el);
+onMounted(() => {
+  get_files();
 });
+
+// loanAgreements.forEach((el) => {
+//   let fileName = el.value.split("/");
+//   fileName = fileName[fileName.length - 1].split("LoanAgreement")[0];
+//   el.account_number = fileName.slice(0, 6);
+//   let unit_number = fileName.slice(6);
+//   el.unit = unit_number;
+//   if (unit_number.length === 6) {
+//     el.unit = unit_number.slice(2, 6);
+//     if (unit_number.slice(0, 2) === "HV") {
+//       el.development = "Heron View";
+//     }
+//     if (unit_number.slice(0, 2) === "HF") {
+//       el.development = "Heron Fields";
+//     }
+//   } else if (unit_number.length === 5) {
+//     el.unit = unit_number.slice(1, 5);
+//     el.development = "Endulini";
+//   }
+//   // el.unit = unit_number.slice(0, 2);
+
+//   // filename equals first 6 characters of filename + "-" + the remaining characterts
+//   fileName = fileName.slice(0, 6) + "-" + fileName.slice(6);
+
+//   el.fileName = fileName;
+
+//   rows.value.push(el);
+// });
 </script>
 
 <style scoped>
