@@ -114,7 +114,7 @@
               class="signin que-input"
               v-model="emailToCheck"
               :dark="false"
-              placeholder="  Enter your email"
+              placeholder="  Enter your email XX"
               autocomplete="email"
               name="email"
               dense
@@ -143,7 +143,7 @@
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
                 val="email"
-                :label="radioEmailLabel"
+                :label="radioEmailLabelPartial"
                 color="yellow"
               />
               <q-radio
@@ -152,7 +152,7 @@
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
                 val="SMS"
-                :label="radioSMSLabel"
+                :label="radioSMSLabelPartial"
                 color="yellow"
               >
                 <q-tooltip
@@ -296,6 +296,8 @@ const email_verified = ref(false);
 
 const radioEmailLabel = ref("Email");
 const radioSMSLabel = ref("SMS");
+const radioEmailLabelPartial = ref("Email");
+const radioSMSLabelPartial = ref("SMS");
 const id_toChange_password = ref("");
 
 const checkEmailAddress = async () => {
@@ -312,10 +314,33 @@ const checkEmailAddress = async () => {
     id_toChange_password.value = response.data._id;
     radioEmailLabel.value = `Email: ${response.data.email}`;
 
+    var parts = response.data.email.split("@");
+
+    if (parts.length !== 2) {
+      return "Invalid email address";
+    }
+
+    var username = parts[0];
+    var domain = parts[1];
+
+    // Mask the username with asterisks
+    var maskedUsername = username.replace(/\S/g, "*");
+
+    // Return the masked email address
+    radioEmailLabelPartial.value = maskedUsername + "@" + domain;
+
+    // show only the last 3 digits of the mobile number and the rest of the characters as *
+
     // radioSMSLabel.value = `SMS: COMING SOON`;
     // remove the first digit of the mobile number
 
     radioSMSLabel.value = `SMS (+27): ${response.data.mobile}`;
+    var lastThreeDigits = response.data.mobile.slice(-3);
+
+    // Mask the rest of the phone number with asterisks
+    var maskedNumber =
+      response.data.mobile.slice(0, -3).replace(/\d/g, "*") + lastThreeDigits;
+    radioSMSLabelPartial.value = `SMS (+27): ${maskedNumber}`;
   }
 };
 
