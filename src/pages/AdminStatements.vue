@@ -3,7 +3,6 @@
     <std-header />
     <br /><br />
     <!-- <div class="row"> -->
-
     <div
       style="
         display: flex;
@@ -94,17 +93,17 @@
               </template>
               <template v-slot:body="props">
                 <q-tr :props="props">
-                  <q-td key="interest_category" :props="props">
-                    {{ props.row.interest_category }}
+                  <q-td key="Type" :props="props">
+                    {{ props.row.Type }}
                   </q-td>
-                  <q-td key="investor_acc_number" :props="props">
-                    {{ props.row.investor_acc_number }}
+                  <q-td key="opportunity_code" :props="props">
+                    {{ props.row.opportunity_code }}
                   </q-td>
                   <q-td key="days" :props="props">
                     {{ props.row.days }}
                   </q-td>
-                  <q-td key="interest_until" :props="props">
-                    {{ props.row.interest_until }}
+                  <q-td key="date" :props="props">
+                    {{ props.row.date }}
                   </q-td>
                   <q-td key="interest_rate" :props="props">
                     {{ props.row.interest_rate }}
@@ -163,89 +162,168 @@ const route = useRoute();
 
 const filter = ref("");
 
+const pythonUrl = ref("");
+
+if (process.env.DEV) {
+  pythonUrl.value = "http://localhost:8000";
+} else {
+  pythonUrl.value = "https://omh-python.herokuapp.com";
+}
+
 verifyUser();
+
+// const columns = [
+//   {
+//     name: "Type",
+//     required: true,
+//     label: "Type",
+//     align: "left",
+//     field: "Type",
+//     sortable: true,
+//     style: "width: 250px",
+//   },
+//   {
+//     name: "investor_acc_number",
+//     required: true,
+//     label: "Code",
+//     align: "center",
+//     field: "investor_acc_number",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "days",
+//     required: true,
+//     label: "Days",
+//     align: "center",
+//     field: "days",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "interest_until",
+//     required: true,
+//     label: "Date",
+//     align: "center",
+//     field: "interest_until",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "interest_rate",
+//     required: true,
+//     label: "Interest %",
+//     align: "right",
+//     field: "interest_rate",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "investment_amount",
+//     required: true,
+//     label: "Investment",
+//     align: "right",
+//     field: "investment_amount",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "interest",
+//     required: true,
+//     label: "Interest",
+//     align: "right",
+//     field: "interest",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "cumulative_interest",
+//     required: true,
+//     label: "Cumulative Interest",
+//     align: "right",
+//     field: "cumulative_interest",
+//     sortable: true,
+//     style: "width: 150px",
+//   },
+//   {
+//     name: "balance",
+//     required: true,
+//     label: "Balance",
+//     align: "right",
+//     field: "balance",
+//     sortable: true,
+//     style: "width: 200px",
+//   },
+// ];
 
 const columns = [
   {
-    name: "interest_category",
+    name: "Type",
     required: true,
     label: "Type",
     align: "left",
-    field: "interest_category",
+    field: "Type",
+    // field: (row) => row.Month,
+    // format: (val) => `${val}`,
     sortable: true,
-    style: "width: 250px",
   },
   {
-    name: "investor_acc_number",
-    required: true,
+    name: "opportunity_code",
+    align: "left",
     label: "Code",
-    align: "center",
-    field: "investor_acc_number",
+    field: "opportunity_code",
     sortable: true,
-    style: "width: 150px",
   },
   {
     name: "days",
-    required: true,
     label: "Days",
-    align: "center",
     field: "days",
     sortable: true,
-    style: "width: 150px",
+    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
-    name: "interest_until",
-    required: true,
+    name: "date",
     label: "Date",
-    align: "center",
-    field: "interest_until",
+    field: "date",
     sortable: true,
-    style: "width: 150px",
+    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
     name: "interest_rate",
-    required: true,
-    label: "Interest %",
-    align: "right",
+    label: "Interest Rate (%)",
     field: "interest_rate",
     sortable: true,
-    style: "width: 150px",
+    sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
     name: "investment_amount",
-    required: true,
-    label: "Investment",
-    align: "right",
+    label: "Amount",
     field: "investment_amount",
-    sortable: true,
-    style: "width: 150px",
   },
+  // {
+  //   name: "interest_rate",
+  //   label: "Rate (%)",
+  //   field: "interest_rate",
+  // },
+  // {
+  //   name: "days",
+  //   label: "Days",
+  //   field: "days",
+  // },
   {
     name: "interest",
-    required: true,
     label: "Interest",
-    align: "right",
     field: "interest",
-    sortable: true,
-    style: "width: 150px",
   },
   {
     name: "cumulative_interest",
-    required: true,
     label: "Cumulative Interest",
-    align: "right",
     field: "cumulative_interest",
-    sortable: true,
-    style: "width: 150px",
   },
   {
     name: "balance",
-    required: true,
     label: "Balance",
-    align: "right",
     field: "balance",
-    sortable: true,
-    style: "width: 200px",
   },
 ];
 
@@ -279,95 +357,200 @@ const initialPagination = {
 const get_info = async () => {
   let data = route.params;
   data.investment_number = parseInt(data.investment_number);
+  console.log("ROUTE", route.params);
 
-  try {
-    const response = await nodeService.getInvestorStatement(route.params);
-    console.log("XXYY", response.data);
-    response.data = response.data.filter((el) => {
-      return el.days !== 0;
-    });
-    response.data.forEach((el) => {
-      if (el.interest_category === "Interest") {
-        el.interest_category = "Released Interest";
-      } else if (el.interest_category === "Trust Interest") {
-        el.interest_category = "Investment Interest";
-      }
+  let response = await axios.post(
+    `${pythonUrl.value}/get_investor_statement_summary`,
+    data
+  );
 
-      if (el.balance === el.investment_amount) {
-        el.interest = "";
-      }
-      // replace all '/' with '-' in el.effect_date
-      el.effective_date = el.effective_date.replace(/\//g, "-");
-      // do the same with interest_until
-      // el.interest_until = el.interest_until.replace(/\//g, "-");
-    });
+  console.log("XXYY", response.data);
 
-    response.data.forEach((el, index) => {
-      if (index === 0 || index === 1) {
-        el.cumulative_interest = 0;
-      } else {
-        // create a new variable called interest_current and use el.interest but remove any non-numeric characters and convert to a float
-        // then add interest_current to el.cumulative_interest
-        el.cumulative_interest =
-          parseFloat(el.balance.replace(/[^0-9.-]+/g, "")) -
-          parseFloat(el.investment_amount.replace(/[^0-9.-]+/g, ""));
-        // +
-        //   parseFloat(arr[index - 1].cumulative_interest);
-      }
-      if (el.balance !== el.investment_amount) {
-        el.investment_amount = "";
-      }
-    });
+  rows.value = response.data;
 
-    response.data.forEach((el, index) => {
-      if (index === 0 || index === 1) {
-        el.cumulative_interest = "";
-      } else {
-        el.cumulative_interest = convertToString(el.cumulative_interest);
-      }
-      // el.balance = convertToString(el.balance);
-    });
+  create_statements();
 
-    // loop through response.data and move the first object with interest_category === "Released" to immedietly before the first object with interest_category === "Released Interest"
-    let temp;
-    response.data.forEach((el, index) => {
-      if (el.interest_category === "Released") {
-        temp = response.data.splice(index, 1);
-        // response.data.splice(index - 1, 0, temp[0]);
-      }
-    });
+  // try {
+  //   const response = await nodeService.getInvestorStatement(route.params);
+  //   console.log("XXYY", response.data);
+  //   response.data = response.data.filter((el) => {
+  //     return el.days !== 0;
+  //   });
+  //   response.data.forEach((el) => {
+  //     if (el.interest_category === "Interest") {
+  //       el.interest_category = "Released Interest";
+  //     } else if (el.interest_category === "Trust Interest") {
+  //       el.interest_category = "Investment Interest";
+  //     }
 
-    for (let i = 0; i < response.data.length; i++) {
-      if (response.data[i].interest_category === "Released Interest") {
-        response.data.splice(i, 0, temp[0]);
-        break;
-      }
-    }
+  //     if (el.balance === el.investment_amount) {
+  //       el.interest = "";
+  //     }
+  //     // replace all '/' with '-' in el.effect_date
+  //     el.effective_date = el.effective_date.replace(/\//g, "-");
+  //     // do the same with interest_until
+  //     // el.interest_until = el.interest_until.replace(/\//g, "-");
+  //   });
 
-    response.data.forEach((el, index, arr) => {
-      if (el.interest_category === "Released") {
-        el.balance = arr[index - 1].balance;
-        el.cumulative_interest = arr[index - 1].cumulative_interest;
-        el.interest = "0.00";
-      }
+  //   response.data.forEach((el, index) => {
+  //     if (index === 0 || index === 1) {
+  //       el.cumulative_interest = 0;
+  //     } else {
+  //       // create a new variable called interest_current and use el.interest but remove any non-numeric characters and convert to a float
+  //       // then add interest_current to el.cumulative_interest
+  //       el.cumulative_interest =
+  //         parseFloat(el.balance.replace(/[^0-9.-]+/g, "")) -
+  //         parseFloat(el.investment_amount.replace(/[^0-9.-]+/g, ""));
+  //       // +
+  //       //   parseFloat(arr[index - 1].cumulative_interest);
+  //     }
+  //     if (el.balance !== el.investment_amount) {
+  //       el.investment_amount = "";
+  //     }
+  //   });
 
-      // if interest_until exists replace all '/' with '-' in el.interest_until
-      if (el.interest_until) {
-        el.interest_until = el.interest_until.replace(/\//g, "-");
-      } else {
-        el.interest_until = el.effective_date;
-      }
-    });
+  //   response.data.forEach((el, index) => {
+  //     if (index === 0 || index === 1) {
+  //       el.cumulative_interest = "";
+  //     } else {
+  //       el.cumulative_interest = convertToString(el.cumulative_interest);
+  //     }
+  //     // el.balance = convertToString(el.balance);
+  //   });
 
-    rows.value = response.data;
+  //   // loop through response.data and move the first object with interest_category === "Released" to immedietly before the first object with interest_category === "Released Interest"
+  //   let temp;
+  //   response.data.forEach((el, index) => {
+  //     if (el.interest_category === "Released") {
+  //       temp = response.data.splice(index, 1);
+  //       // response.data.splice(index - 1, 0, temp[0]);
+  //     }
+  //   });
 
-    title.value = `Statement - ${data.opportunity_code}`;
+  //   for (let i = 0; i < response.data.length; i++) {
+  //     if (response.data[i].interest_category === "Released Interest") {
+  //       response.data.splice(i, 0, temp[0]);
+  //       break;
+  //     }
+  //   }
 
-    create_statements();
-  } catch (error) {
-    console.error(error);
-  }
+  //   response.data.forEach((el, index, arr) => {
+  //     if (el.interest_category === "Released") {
+  //       el.balance = arr[index - 1].balance;
+  //       el.cumulative_interest = arr[index - 1].cumulative_interest;
+  //       el.interest = "0.00";
+  //     }
+
+  //     // if interest_until exists replace all '/' with '-' in el.interest_until
+  //     if (el.interest_until) {
+  //       el.interest_until = el.interest_until.replace(/\//g, "-");
+  //     } else {
+  //       el.interest_until = el.effective_date;
+  //     }
+  //   });
+
+  //   rows.value = response.data;
+
+  //   title.value = `Statement - ${data.opportunity_code}`;
+
+  //   create_statements();
+  // } catch (error) {
+  //   console.error(error);
+  // }
 };
+// const get_info = async () => {
+//   let data = route.params;
+//   data.investment_number = parseInt(data.investment_number);
+//   console.log("ROUTE", route.params);
+
+//   try {
+//     const response = await nodeService.getInvestorStatement(route.params);
+//     console.log("XXYY", response.data);
+//     response.data = response.data.filter((el) => {
+//       return el.days !== 0;
+//     });
+//     response.data.forEach((el) => {
+//       if (el.interest_category === "Interest") {
+//         el.interest_category = "Released Interest";
+//       } else if (el.interest_category === "Trust Interest") {
+//         el.interest_category = "Investment Interest";
+//       }
+
+//       if (el.balance === el.investment_amount) {
+//         el.interest = "";
+//       }
+//       // replace all '/' with '-' in el.effect_date
+//       el.effective_date = el.effective_date.replace(/\//g, "-");
+//       // do the same with interest_until
+//       // el.interest_until = el.interest_until.replace(/\//g, "-");
+//     });
+
+//     response.data.forEach((el, index) => {
+//       if (index === 0 || index === 1) {
+//         el.cumulative_interest = 0;
+//       } else {
+//         // create a new variable called interest_current and use el.interest but remove any non-numeric characters and convert to a float
+//         // then add interest_current to el.cumulative_interest
+//         el.cumulative_interest =
+//           parseFloat(el.balance.replace(/[^0-9.-]+/g, "")) -
+//           parseFloat(el.investment_amount.replace(/[^0-9.-]+/g, ""));
+//         // +
+//         //   parseFloat(arr[index - 1].cumulative_interest);
+//       }
+//       if (el.balance !== el.investment_amount) {
+//         el.investment_amount = "";
+//       }
+//     });
+
+//     response.data.forEach((el, index) => {
+//       if (index === 0 || index === 1) {
+//         el.cumulative_interest = "";
+//       } else {
+//         el.cumulative_interest = convertToString(el.cumulative_interest);
+//       }
+//       // el.balance = convertToString(el.balance);
+//     });
+
+//     // loop through response.data and move the first object with interest_category === "Released" to immedietly before the first object with interest_category === "Released Interest"
+//     let temp;
+//     response.data.forEach((el, index) => {
+//       if (el.interest_category === "Released") {
+//         temp = response.data.splice(index, 1);
+//         // response.data.splice(index - 1, 0, temp[0]);
+//       }
+//     });
+
+//     for (let i = 0; i < response.data.length; i++) {
+//       if (response.data[i].interest_category === "Released Interest") {
+//         response.data.splice(i, 0, temp[0]);
+//         break;
+//       }
+//     }
+
+//     response.data.forEach((el, index, arr) => {
+//       if (el.interest_category === "Released") {
+//         el.balance = arr[index - 1].balance;
+//         el.cumulative_interest = arr[index - 1].cumulative_interest;
+//         el.interest = "0.00";
+//       }
+
+//       // if interest_until exists replace all '/' with '-' in el.interest_until
+//       if (el.interest_until) {
+//         el.interest_until = el.interest_until.replace(/\//g, "-");
+//       } else {
+//         el.interest_until = el.effective_date;
+//       }
+//     });
+
+//     rows.value = response.data;
+
+//     title.value = `Statement - ${data.opportunity_code}`;
+
+//     create_statements();
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
 
 const href1 = ref("");
 const href2 = ref("");
@@ -377,6 +560,8 @@ const create_statements = async () => {
     let data = {
       data: rows.value,
     };
+
+    console.log("ROWS", rows.value);
 
     await pythonService
       .create_portal_statement(data)
