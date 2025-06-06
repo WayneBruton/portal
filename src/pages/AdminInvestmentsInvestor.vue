@@ -65,9 +65,9 @@
                   <q-td key="investment_number" :props="props">
                     {{ props.row.investment_number }}
                   </q-td>
-                  <q-td key="amount_invested" :props="props">
+                  <q-td key="investment_amount" :props="props">
                     <div
-                      v-if="props.row.amount_invested === 'CLOSED'"
+                      v-if="props.row.investment_amount === 'CLOSED'"
                       style="
                         background: #f48484;
                         color: #980f5a;
@@ -78,7 +78,7 @@
                         height: 30px;
                       "
                     >
-                      {{ props.row.amount_invested }}
+                      {{ props.row.investment_amount }}
                     </div>
                     <div
                       v-else
@@ -92,12 +92,12 @@
                         height: 30px;
                       "
                     >
-                      {{ props.row.amount_invested }}
+                      {{ props.row.investment_amount }}
                     </div>
                   </q-td>
                   <q-td key="balance" :props="props">
                     <div
-                      v-if="props.row.amount_invested === 'CLOSED'"
+                      v-if="props.row.investment_amount === 'CLOSED'"
                       style="
                         background: #f48484;
                         color: #980f5a;
@@ -143,11 +143,7 @@
                       >View Statement</q-btn
                     >
                     <q-btn
-                      v-if="
-                        props.row.amount_invested !== 'CLOSED' &&
-                        props.row.days !== null &&
-                        props.row.days < 8
-                      "
+                      v-if="props.row.show_button"
                       style="margin-left: 5px; color: white"
                       :color="props.row.color"
                       no-caps
@@ -195,7 +191,6 @@
           </template>
         </q-input>
       </div>
-
       <q-card
         class="my-card text-white"
         style="margin-top: 5px"
@@ -287,9 +282,7 @@
             </div>
             <div>
               <q-btn
-                v-if="
-                  item.amount_invested !== 'CLOSED' && item.days !== null && item.days < 8
-                "
+                v-if="item.show_button"
                 style="
                   margin: 5px 5px;
                   padding: 5px 0px;
@@ -372,7 +365,7 @@
             </div>
             <div style="display: flex">
               <div style="width: 30%; text-align: center">
-                {{ investmentExit.amount_invested }}
+                {{ investmentExit.investment_amount }}
               </div>
               <div style="width: 30%; text-align: center">
                 {{ investmentExit.current_interest_earned }}
@@ -553,6 +546,13 @@ import axios from "axios";
 import { BarChart } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import {
+  Loading,
+
+  // optional!, for example below
+  // with custom spinner
+  QSpinnerGears,
+} from "quasar";
 Chart.register(ChartDataLabels);
 Chart.register(...registerables);
 
@@ -560,6 +560,14 @@ const $q = useQuasar();
 const store = useUserStore();
 const router = useRouter();
 const route = useRoute();
+
+const pythonUrl = ref("");
+
+if (process.env.DEV) {
+  pythonUrl.value = "http://localhost:8000";
+} else {
+  pythonUrl.value = "https://omh-python.herokuapp.com";
+}
 
 const showgraph = ref(false);
 
@@ -761,9 +769,9 @@ const columns = [
     sortable: true,
   },
   {
-    name: "amount_invested",
+    name: "investment_amount",
     label: "Amount Invested",
-    field: "amount_invested",
+    field: "investment_amount",
     sortable: true,
     align: "center",
   },
@@ -828,12 +836,20 @@ const updateCheckbox_partial_exit = () => {
 };
 
 const exitInvestment = (e) => {
+  console.log("EXIT INVESTMENT", e);
   investmentExit.value = {};
   investmentExit.value = e;
 
+  console.log("1");
   investmentExit.value.float_investment = parseFloat(
-    investmentExit.value.amount_invested.replace(/[^0-9.]/g, "")
+    investmentExit.value.investment_amount.replace(/[^0-9.]/g, "")
   );
+  console.log(
+    "investmentExit.value.float_investment",
+    investmentExit.value.float_investment
+  );
+  console.log("2");
+
   investmentExit.value.float_balance = parseFloat(
     investmentExit.value.balance.replace(/[^0-9.]/g, "")
   );
@@ -858,6 +874,7 @@ const exitInvestment = (e) => {
 };
 
 const submitExit = async () => {
+  console.log("SUBMIT EXIT", investmentExit.value);
   await pythonService
     .investmendEnding(investmentExit.value)
     .then((res) => {
@@ -891,17 +908,31 @@ const updateFloat_investment = () => {
 
 const viewStatement = async (row) => {
   let data = {
-    id: row._id,
+    id: row.id,
     opportunity_code: row.opportunity_code,
     investment_number: row.investment_number,
   };
+  console.log("data", data);
 
   router.push({ name: "adminStatements", params: data });
 };
 
 const get_info = async () => {
   try {
-    const response = await nodeService.getInvestments(route.params);
+    $q.loading.show({
+      delay: 200, // ms
+      // spinner: QSpinnerGears,
+      message: "Approximately 0.35 seconds per investment.",
+      // spinnerColor: "purple",
+    });
+
+    const response = await axios.post(
+      `${pythonUrl.value}/get_investor_summary_balances`,
+      route.params
+    );
+    console.log("RESPONSEXXX", response.data);
+    console.log(route.params);
+    $q.loading.hide();
 
     // sort by investor_surname then by investor_name then by investor_acc_number
     response.data.sort((a, b) => {
@@ -933,13 +964,15 @@ const get_info = async () => {
         el.amount_invested !== undefined &&
         el.amount_invested !== null
       ) {
-        el.amount_invested = convertToString(el.amount_invested);
+        // el.amount_invested = convertToString(el.amount_invested);
+        // el.balance = convertToString(el.balance);
+        el.amount_invested = convertToString(el.investment_amount);
         el.balance = convertToString(el.balance);
       }
     });
 
     rows.value = response.data;
-    console.log(rows.value);
+    console.log("ROWS", rows.value);
 
     // sort rows.value by investment_number descending
     rows.value.sort((a, b) => {
@@ -960,9 +993,75 @@ const get_info = async () => {
       });
     }
   } catch (error) {
+    $q.loading.hide();
     console.error(error);
   }
 };
+// const get_info = async () => {
+//   try {
+//     const response = await nodeService.getInvestments(route.params);
+//     console.log(route.params);
+
+//     // sort by investor_surname then by investor_name then by investor_acc_number
+//     response.data.sort((a, b) => {
+//       if (a.investor_acc_number < b.investor_acc_number) {
+//         return -1;
+//       }
+//       if (a.investor_acc_number > b.investor_acc_number) {
+//         return 1;
+//       }
+//       if (a.opportunity_code < b.opportunity_code) {
+//         return -1;
+//       }
+//       if (a.opportunity_code > b.opportunity_code) {
+//         return 1;
+//       }
+//       if (a.investment_number < b.investment_number) {
+//         return -1;
+//       }
+//       if (a.investment_number > b.investment_number) {
+//         return 1;
+//       }
+//       return 0;
+//     });
+
+//     response.data.forEach((el) => {
+//       if (
+//         el.amount_invested !== "CLOSED" &&
+//         el.amount_invested !== "" &&
+//         el.amount_invested !== undefined &&
+//         el.amount_invested !== null
+//       ) {
+//         el.amount_invested = convertToString(el.amount_invested);
+//         el.balance = convertToString(el.balance);
+//       }
+//     });
+
+//     rows.value = response.data;
+//     console.log(rows.value);
+
+//     // sort rows.value by investment_number descending
+//     rows.value.sort((a, b) => {
+//       if (a.investment_number < b.investment_number) {
+//         return 1;
+//       }
+//       if (a.investment_number > b.investment_number) {
+//         return -1;
+//       }
+//       return 0;
+//     });
+
+//     let filtered = route.path.split("/");
+
+//     if (filtered[2] === "useraccounts") {
+//       rows.value = rows.value.filter((el) => {
+//         return el.investor_acc_number === route.params.id;
+//       });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
 
 const convertToString = (factor) => {
   let str = parseFloat(factor).toFixed(2).split("").reverse();
