@@ -590,6 +590,22 @@ const get_info = async () => {
           developmentName = "Goodwood Bulk Refurbishment";
           block = "";
           unit = `Erf ${el.slice(-4)}`;
+        } else if (el.substring(0, 3) === "STC") {
+          developmentName = "Stonecrest";
+          block = "";
+          unit = `Unit ${el.slice(-3)}`;
+        } else if (el.substring(0, 3) === "SSH") {
+          developmentName = "Somerset Hills";
+          block = "";
+          unit = `Unit ${el.slice(-3)}`;
+        } else if (el.substring(0, 3) === "TTR") {
+          developmentName = "The Tribeca";
+          block = "";
+          unit = `Unit ${el.slice(-3)}`;
+        } else if (el.substring(0, 4) === "NGAH") {
+          developmentName = "NGAH";
+          block = "";
+          unit = `Unit ${el.slice(-3)}`;
         }
       } else if (el.substring(0, 1) === "E") {
         developmentName = "Endulini";
