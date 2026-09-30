@@ -16,6 +16,9 @@ export default {
   generateOTP(data) {
     return api().post("/generate_otp", data);
   },
+  verifyOTP(data) {
+    return api().post("/verify_otp", data);
+  },
   investmendEnding(data) {
     return api().post("/investment_termination", data);
   },
